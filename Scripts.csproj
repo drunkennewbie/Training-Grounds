@@ -72,6 +72,10 @@
     <Compile Include="Accounting\AccountTag.cs" />
     <Compile Include="Accounting\Firewall.cs" />
     <Compile Include="Accounting\IPLimiter.cs" />
+    <Compile Include="Added Systems\Quests\Botanist\Botanist.cs" />
+    <Compile Include="Added Systems\Quests\Botanist\BotanistGump.cs" />
+    <Compile Include="Added Systems\Quests\Botanist\Items\DirtJar.cs" />
+    <Compile Include="Added Systems\Quests\Botanist\Items\Worm.cs" />
     <Compile Include="Commands\Add.cs" />
     <Compile Include="Commands\Attributes.cs" />
     <Compile Include="Commands\Batch.cs" />
