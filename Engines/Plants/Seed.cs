@@ -1,7 +1,6 @@
-using System;
 using System.Text;
-using Server;
 using Server.Targeting;
+using Server.Items;
 
 namespace Server.Engines.Plants
 {
@@ -94,42 +93,44 @@ namespace Server.Engines.Plants
 
 		private int GetLabel( out string args )
 		{
-			PlantTypeInfo typeInfo = PlantTypeInfo.GetInfo( m_PlantType );
 			PlantHueInfo hueInfo = PlantHueInfo.GetInfo( m_PlantHue );
 
-			int title;
-
-			if ( m_ShowType || typeInfo.PlantCategory == PlantCategory.Default )
+			int title = PlantTypeInfo.GetBonsaiTitle( m_PlantType );
+			if ( title == 0 ) // Not a bonsai
 				title = hueInfo.Name;
-			else
-				title = (int)typeInfo.PlantCategory;
+
+			int label;
 
 			if ( Amount == 1 )
-			{
-				if ( m_ShowType )
-				{
-					args = String.Format( "#{0}\t#{1}", title, typeInfo.Name );
-					return typeInfo.GetSeedLabel( hueInfo );
-				}
-				else
-				{
-					args = String.Format( "#{0}", title );
-					return hueInfo.IsBright() ? 1060839 : 1060838; // [bright] ~1_val~ seed
-				}
-			}
+				label = m_ShowType ? 1061917 : 1060838; // ~1_COLOR~ ~2_TYPE~ seed : ~1_val~ seed
 			else
+				label = m_ShowType ? 1113492 : 1113490; // ~1_amount~ ~2_color~ ~3_type~ seeds : ~1_amount~ ~2_val~ seeds
+
+			if ( hueInfo.IsBright() )
+				++label;
+
+			StringBuilder ab = new StringBuilder();
+
+			if ( Amount != 1 )
 			{
-				if ( m_ShowType )
-				{
-					args = String.Format( "{0}\t#{1}\t#{2}", Amount, title, typeInfo.Name );
-					return typeInfo.GetSeedLabelPlural( hueInfo );
-				}
-				else
-				{
-					args = String.Format( "{0}\t#{1}", Amount, title );
-					return hueInfo.IsBright() ? 1113491 : 1113490; // ~1_amount~ [bright] ~2_val~ seeds
-				}
+				ab.Append( Amount );
+				ab.Append( '\t' );
 			}
+
+			ab.Append( '#' );
+			ab.Append( title );
+
+			if ( m_ShowType )
+			{
+				PlantTypeInfo typeInfo = PlantTypeInfo.GetInfo( m_PlantType );
+
+				ab.Append( "\t#" );
+				ab.Append( typeInfo.Name );
+			}
+
+			args = ab.ToString();
+
+			return label;
 		}
 
 		public override void AddNameProperty( ObjectPropertyList list )
@@ -208,6 +209,35 @@ namespace Server.Engines.Plants
 
 					plant.PlantSeed( from, m_Seed );
 				}
+				
+				else if (targeted is Server.Items.GardenAddonComponent)
+                {
+                    Server.Items.GardenAddonComponent addon = (Server.Items.GardenAddonComponent)targeted;
+
+                    if (addon.Plant != null)
+                        from.SendLocalizedMessage(1150367); // This plot already has a plant!
+                    else
+                    {
+                        Server.Multis.BaseHouse house = Server.Multis.BaseHouse.FindHouseAt(addon);
+
+                        if (house != null)
+                        {
+                            int fertileDirt = from.Backpack == null ? 0 : from.Backpack.GetAmount(typeof(FertileDirt), false);
+
+                            if (fertileDirt > 0)
+                                from.SendGump(new FertileDirtGump(m_Seed, fertileDirt, addon));
+                            else
+                            {
+                                RaisedGardenPlantItem dirt = new RaisedGardenPlantItem();
+                                dirt.MoveToWorld(new Point3D(addon.X, addon.Y, addon.Z + 5), addon.Map);
+
+                                dirt.PlantSeed(from, m_Seed);
+                                addon.Plant = dirt;
+                                dirt.Component = addon;
+                            }
+                        }
+                    }
+                }
 				else if ( targeted is Item )
 				{
 					((Item)targeted).LabelTo( from, 1061919 ); // You must use a seed on a bowl of dirt!
@@ -223,7 +253,7 @@ namespace Server.Engines.Plants
 		{
 			base.Serialize( writer );
 
-			writer.Write( (int) 2 ); // version
+			writer.Write( (int) 1 ); // version
 
 			writer.Write( (int) m_PlantType );
 			writer.Write( (int) m_PlantHue );
@@ -245,9 +275,6 @@ namespace Server.Engines.Plants
 
 			if ( version < 1 )
 				Stackable = Core.SA;
-
-			if ( version < 2 && PlantHueInfo.IsCrossable( m_PlantHue ) )
-				m_PlantHue |= PlantHue.Reproduces;
 		}
 	}
 }

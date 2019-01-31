@@ -26,7 +26,7 @@ namespace Server.Engines.Plants
 
 	public class PlantSystem
 	{
-		public static readonly TimeSpan CheckDelay = TimeSpan.FromHours( 23.0 );
+		public static readonly TimeSpan CheckDelay = TimeSpan.FromHours( 23 ); //Default 23 hours
 
 		private PlantItem m_Plant;
 		private bool m_FertileDirt;
@@ -66,6 +66,7 @@ namespace Server.Engines.Plants
 		public DateTime NextGrowth
 		{
 			get { return m_NextGrowth; }
+			set { m_NextGrowth = value; }
 		}
 
 		public PlantGrowthIndicator GrowthIndicator
@@ -76,6 +77,7 @@ namespace Server.Engines.Plants
 		public bool IsFullWater { get { return m_Water >= 4; } }
 		public int Water
 		{
+			
 			get { return m_Water; }
 			set
 			{
@@ -319,7 +321,7 @@ namespace Server.Engines.Plants
 			m_Plant = plant;
 			m_FertileDirt = fertileDirt;
 
-			m_NextGrowth = DateTime.UtcNow + CheckDelay;
+			m_NextGrowth = DateTime.Now + CheckDelay;
 			m_GrowthIndicator = PlantGrowthIndicator.None;
 			m_Hits = MaxHits;
 			m_LeftSeeds = 8;
@@ -328,7 +330,7 @@ namespace Server.Engines.Plants
 
 		public void Reset( bool potions )
 		{
-			m_NextGrowth = DateTime.UtcNow + CheckDelay;
+			m_NextGrowth = DateTime.Now + CheckDelay;
 			m_GrowthIndicator = PlantGrowthIndicator.None;
 
 			Hits = MaxHits;
@@ -355,6 +357,8 @@ namespace Server.Engines.Plants
 
 		public int GetLocalizedDirtStatus()
 		{
+			if (!m_Plant.RequiresUpkeep) //Plant Doesn't Require Upkeep
+				return 1060827; //soft
 			if ( Water <= 1 )
 				return 1060826; // hard
 			else if ( Water <= 2 )
@@ -418,7 +422,7 @@ namespace Server.Engines.Plants
 		public static void GrowAll()
 		{
 			ArrayList plants = PlantItem.Plants;
-			DateTime now = DateTime.UtcNow;
+			DateTime now = DateTime.Now;
 
 			for ( int i = plants.Count - 1; i >= 0; --i )
 			{
@@ -444,13 +448,13 @@ namespace Server.Engines.Plants
 			if ( !m_Plant.IsGrowable )
 				return;
 
-			if ( DateTime.UtcNow < m_NextGrowth )
+			if ( DateTime.Now < m_NextGrowth )
 			{
 				m_GrowthIndicator = PlantGrowthIndicator.Delay;
 				return;
 			}
 
-			m_NextGrowth = DateTime.UtcNow + CheckDelay;
+			m_NextGrowth = DateTime.Now + CheckDelay;
 
 			if ( !m_Plant.ValidGrowthLocation )
 			{
@@ -534,6 +538,9 @@ namespace Server.Engines.Plants
 
 		private bool ApplyMaladiesEffects()
 		{
+			if (!m_Plant.RequiresUpkeep) //Plant does not get negative effects
+				return true;
+			
 			int damage = 0;
 
 			if ( Infestation > 0 )
@@ -580,7 +587,7 @@ namespace Server.Engines.Plants
 			}
 			else
 			{
-				if ( Pollinated && LeftSeeds > 0 && m_Plant.Reproduces )
+				if ( Pollinated && LeftSeeds > 0 && m_Plant.IsCrossable )
 				{
 					LeftSeeds--;
 					AvailableSeeds++;
@@ -605,6 +612,10 @@ namespace Server.Engines.Plants
 
 		private void UpdateMaladies()
 		{
+			
+			if (!m_Plant.RequiresUpkeep) //Apply no Effects 
+				return;
+			
 			double infestationChance = 0.30 - StrengthPotion * 0.075 + ( Water - 2 ) * 0.10;
 
 			PlantTypeInfo typeInfo = PlantTypeInfo.GetInfo( m_Plant.PlantType );
@@ -643,7 +654,7 @@ namespace Server.Engines.Plants
 
 		public void Save( GenericWriter writer )
 		{
-			writer.Write( (int) 2 ); // version
+			writer.Write( (int) 1 ); // version
 
 			writer.Write( (bool) m_FertileDirt );
 
@@ -707,9 +718,6 @@ namespace Server.Engines.Plants
 
 			m_AvailableResources = reader.ReadInt();
 			m_LeftResources = reader.ReadInt();
-
-			if ( version < 2 && PlantHueInfo.IsCrossable( m_SeedHue ) )
-				m_SeedHue |= PlantHue.Reproduces;
 		}
 	}
 }
