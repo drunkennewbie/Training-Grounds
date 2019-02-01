@@ -3,6 +3,7 @@ using Server.Targeting;
 using Server.Items;
 using Server.Network;
 using Server.Mobiles;
+using Server.Engines.Plants;
 
 namespace Server.SkillHandlers
 {
@@ -25,7 +26,7 @@ namespace Server.SkillHandlers
 		[PlayerVendorTarget]
 		private class InternalTarget : Target
 		{
-			public InternalTarget() :  base ( 2, false, TargetFlags.None )
+			public InternalTarget() :  base ( 2, true, TargetFlags.None )
 			{
 				AllowNonlocal = true;
 			}
@@ -79,10 +80,23 @@ namespace Server.SkillHandlers
 						keg.SendLocalizedMessageTo( from, keg.LabelNumber );
 					}
 				}
-				else
+				else if ( targeted is Seed)
+				{
+					Seed seed = (Seed)targeted;
+					if (from.CheckTargetSkill(SkillName.TasteID, seed, 80, 100))
+					{
+						seed.ShowType = true;
+						from.SendMessage("You identified the seed type as {0}", seed.PlantType);
+					}
+					else
+					{
+						from.SendMessage("You can't determine what seed type this is");
+					}
+				}
+			else
 				{
 					// The target is not food or potion or potion keg.
-					from.SendLocalizedMessage( 502820 ); // That's not something you can taste.
+					from.SendLocalizedMessage(502820); // That's not something you can taste.
 				}
 			}
 

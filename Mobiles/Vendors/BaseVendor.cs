@@ -48,8 +48,13 @@ namespace Server.Mobiles
 
 		public override bool IsInvulnerable { get { return true; } }
 
-		public virtual DateTime NextTrickOrTreat { get { return m_NextTrickOrTreat; } set { m_NextTrickOrTreat = value; } }
 
+		#region Begging Flags
+		public virtual DateTime NextBegging { get; set; } //Base Begging Right
+		public virtual DateTime NextChristmasGiving { get; set; } //Base for Christmas Givings
+		public virtual DateTime NextTrickOrTreat { get { return m_NextTrickOrTreat; } set { m_NextTrickOrTreat = value; } }//Base for Trick or Treats
+		#endregion
+		
 		public override bool ShowFameTitle { get { return false; } }
 
 		public virtual bool IsValidBulkOrder( Item item )
