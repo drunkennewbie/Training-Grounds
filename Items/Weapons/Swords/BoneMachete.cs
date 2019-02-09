@@ -1,10 +1,10 @@
 using System;
 using Server.Items;
-using Server.Engines.MLQuests.Items;
+//Used to Teleport Player into Blighted Grove
 
 namespace Server.Items
 {
-	public class BoneMachete : ElvenMachete, ITicket
+	public class BoneMachete : ElvenMachete //Iticket
 	{
 		public override WeaponAbility PrimaryAbility { get { return null; } }
 		public override WeaponAbility SecondaryAbility { get { return null; } }

@@ -24,7 +24,7 @@ using Server.Engines.CannedEvil;
 using Server.Engines.Craft;
 using Server.Spells.Spellweaving;
 using Server.Engines.PartySystem;
-using Server.Engines.MLQuests;
+
 
 namespace Server.Mobiles
 {
@@ -1666,7 +1666,7 @@ namespace Server.Mobiles
 						}
 					}
 
-					if ( MLQuestSystem.Enabled )
+					if ( QuestSystem.Enabled )
 						list.Add( new CallbackEntry( 6169, new ContextCallback( ToggleQuestItem ) ) ); // Toggle Quest Item
 				}
 
@@ -2191,10 +2191,10 @@ namespace Server.Mobiles
 
 		private void ToggleQuestItemTarget()
 		{
-			Server.Engines.MLQuests.Gumps.BaseQuestGump.CloseOtherGumps( this );
-			CloseGump( typeof( Server.Engines.MLQuests.Gumps.QuestLogDetailedGump ) );
-			CloseGump( typeof( Server.Engines.MLQuests.Gumps.QuestLogGump ) );
-			CloseGump( typeof( Server.Engines.MLQuests.Gumps.QuestOfferGump ) );
+			Server.Engines.Quests.Gumps.BaseQuestGump.CloseOtherGumps( this );
+			CloseGump( typeof( Server.Engines.Quests.Gumps.QuestLogDetailedGump ) );
+			CloseGump( typeof( Server.Engines.Quests.Gumps.QuestLogGump ) );
+			CloseGump( typeof( Server.Engines.Quests.Gumps.NQuestOfferGump ) );
 			//CloseGump( typeof( UnknownGump802 ) );
 			//CloseGump( typeof( UnknownGump804 ) );
 
@@ -2221,7 +2221,7 @@ namespace Server.Mobiles
 				item.QuestItem = false;
 				SendLocalizedMessage( 1072354 ); // You remove Quest Item status from the item
 			}
-			else if ( MLQuestSystem.MarkQuestItem( this, item ) )
+			else if ( QuestSystem.MarkQuestItem( this, item ) )
 			{
 				SendLocalizedMessage( 1072353 ); // You set the item to Quest Item status
 			}
@@ -2917,7 +2917,7 @@ namespace Server.Mobiles
 
 			Server.Guilds.Guild.HandleDeath( this, killer );
 
-			MLQuestSystem.HandleDeath( this );
+			QuestSystem.HandleDeath( this );
 
 			#region Dueling
 			if ( m_DuelContext != null )
@@ -3899,7 +3899,7 @@ namespace Server.Mobiles
 			if ( faction != null )
 				faction.RemoveMember( this );
 
-			MLQuestSystem.HandleDeletion( this );
+			QuestSystem.HandleDeletion( this );
 
 			BaseHouse.HandleDeletion( this );
 
@@ -4188,8 +4188,8 @@ namespace Server.Mobiles
 					acc.RemoveYoungStatus( 1019036 ); // You have successfully obtained a respectable skill level, and have outgrown your status as a young player!
 			}
 
-			if ( MLQuestSystem.Enabled )
-				MLQuestSystem.HandleSkillGain( this, skill );
+			if ( QuestSystem.Enabled )
+				QuestSystem.HandleSkillGain( this, skill );
 
 			InvalidateMyRunUO();
 		}

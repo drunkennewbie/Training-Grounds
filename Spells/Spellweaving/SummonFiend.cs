@@ -1,6 +1,6 @@
 using System;
 using Server.Mobiles;
-using Server.Engines.MLQuests;
+using Server.Engines.Quests;
 
 namespace Server.Spells.Spellweaving
 {
@@ -30,13 +30,13 @@ namespace Server.Spells.Spellweaving
 			// This is done after casting completes
 			if ( caster is PlayerMobile )
 			{
-				MLQuestContext context = MLQuestSystem.GetContext( (PlayerMobile)caster );
+				QuestContext context = QuestSystem.GetContext( (PlayerMobile)caster );
 
-				if ( context == null || !context.SummonFiend )
-				{
+				//if ( context == null || !context.SummonFiend )
+				//{
 					caster.SendLocalizedMessage( 1074564 ); // You haven't demonstrated mastery to summon a fiend.
 					return false;
-				}
+				//}
 			}
 
 			return base.CheckSequence();

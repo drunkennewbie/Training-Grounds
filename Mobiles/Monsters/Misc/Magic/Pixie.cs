@@ -58,8 +58,8 @@ namespace Server.Mobiles
 		{
 			base.OnDeath( c );
 
-			if ( Utility.RandomDouble() < 0.35 )
-				c.DropItem( new PixieLeg() );
+		//	if ( Utility.RandomDouble() < 0.35 )
+		//		c.DropItem( new PixieLeg() );
 		}
 
 		public override HideType HideType{ get{ return HideType.Spined; } }

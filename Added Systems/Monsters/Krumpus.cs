@@ -117,7 +117,7 @@ namespace Server.Mobiles
 		public override void OnDeath(Container c)
 		{
 			base.OnDeath(c);
-
+			
 			this.Say("I Will be back next year my children! Better be good!");
 
 		}
@@ -361,6 +361,12 @@ namespace Server.Mobiles
 
 			protected override void OnTick()
 			{
+				if (m_Mobile == null || m_Mobile.Deleted || !m_Mobile.Alive)
+				{
+					Stop();
+					return;
+				}
+					
 				if (m_Tick < 15)
 				{
 					Point3D p = FindLocation(m_Mobile.Map, m_Mobile.Location, 7);

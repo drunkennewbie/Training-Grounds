@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 using Server.Items;
-using Server.Engines.MLQuests;
+using Server.Engines.Quests;
 
 namespace Server.Mobiles.Townfolk
 {
@@ -50,7 +50,7 @@ namespace Server.Mobiles.Townfolk
 			 * 502266 - Aaah! Help me!
 			 * 502267 - Go and get some help!
 			 */
-			MLQuestSystem.Tell( this, pm, Utility.Random( 502261, 7 ) );
+			QuestSystem.Tell( this, pm, Utility.Random( 502261, 7 ) );
 		}
 
 		public override void OnMovement( Mobile m, Point3D oldLocation )

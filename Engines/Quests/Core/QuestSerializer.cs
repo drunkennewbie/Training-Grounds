@@ -1,5 +1,5 @@
 using System;
-
+//Original Quest
 namespace Server.Engines.Quests
 {
 	public class QuestSerializer

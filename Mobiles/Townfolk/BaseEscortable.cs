@@ -3,31 +3,30 @@ using System.Collections;
 using System.Collections.Generic;
 using Server;
 using Server.Items;
-using Server.Network;
 using Server.ContextMenus;
 using EDI = Server.Mobiles.EscortDestinationInfo;
-using Server.Engines.MLQuests;
-using Server.Engines.MLQuests.Definitions;
-using Server.Engines.MLQuests.Objectives;
+using Server.Engines.Quests;
+using Server.Engines.Quests.Definitions;
+using Server.Engines.Quests.Objectives;
 
 namespace Server.Mobiles
 {
 	public class BaseEscortable : BaseCreature
 	{
 		public static readonly TimeSpan EscortDelay = TimeSpan.FromMinutes( 5.0 );
-		public static readonly TimeSpan AbandonDelay = MLQuestSystem.Enabled ? TimeSpan.FromMinutes( 1.0 ) : TimeSpan.FromMinutes( 2.0 );
-		public static readonly TimeSpan DeleteTime = MLQuestSystem.Enabled ? TimeSpan.FromSeconds( 100 ) : TimeSpan.FromSeconds( 30 );
+		public static readonly TimeSpan AbandonDelay = QuestSystem.Enabled ? TimeSpan.FromMinutes( 1.0 ) : TimeSpan.FromMinutes( 2.0 );
+		public static readonly TimeSpan DeleteTime = QuestSystem.Enabled ? TimeSpan.FromSeconds( 100 ) : TimeSpan.FromSeconds( 30 );
 
-		public override bool StaticMLQuester { get { return false; } } // Suppress automatic quest registration on creation/deserialization
+		public override bool StaticQuester { get { return false; } } // Suppress automatic quest registration on creation/deserialization
 
-		private MLQuest m_MLQuest;
+		private Quests m_Quests;
 
-		protected override List<MLQuest> ConstructQuestList()
+		protected override List<Quests> ConstructQuestList()
 		{
-			if ( m_MLQuest == null )
+			if ( m_Quests == null )
 			{
 				Region reg = Region;
-				Type[] list = reg.IsPartOf( "Haven Island" ) ? m_MLQuestTypesNH : m_MLQuestTypes;
+				Type[] list = m_QuestTypes;
 
 				int randomIdx = Utility.Random( list.Length );
 
@@ -35,7 +34,7 @@ namespace Server.Mobiles
 				{
 					Type questType = list[randomIdx];
 
-					MLQuest quest = MLQuestSystem.FindQuest( questType );
+					Quests quest = QuestSystem.FindQuest( questType );
 
 					if ( quest != null )
 					{
@@ -52,11 +51,11 @@ namespace Server.Mobiles
 
 						if ( okay )
 						{
-							m_MLQuest = quest;
+							m_Quests = quest;
 							break;
 						}
 					}
-					else if ( MLQuestSystem.Debug )
+					else if ( QuestSystem.Debug )
 					{
 						Console.WriteLine( "Warning: Escortable cannot be assigned quest type '{0}', it is not registered", questType.Name );
 					}
@@ -64,17 +63,17 @@ namespace Server.Mobiles
 					randomIdx = ( randomIdx + 1 ) % list.Length;
 				}
 
-				if ( m_MLQuest == null )
+				if ( m_Quests == null )
 				{
-					if ( MLQuestSystem.Debug )
+					if ( QuestSystem.Debug )
 						Console.WriteLine( "Warning: No suitable quest found for escort {0}", Serial );
 
 					return null;
 				}
 			}
 
-			List<MLQuest> result = new List<MLQuest>();
-			result.Add( m_MLQuest );
+			List<Quests> result = new List<Quests>();
+			result.Add( m_Quests );
 
 			return result;
 		}
@@ -88,7 +87,7 @@ namespace Server.Mobiles
 			 * 1072302 - Adventurer!  I have an offer for you.
 			 * 1072303 - Wait!  I have an opportunity for you to make some gold!
 			 */
-			MLQuestSystem.Tell( this, pm, Utility.Random( 1072301, 3 ) );
+			QuestSystem.Tell( this, pm, Utility.Random( 1072301, 3 ) );
 		}
 
 		private EDI m_Destination;
@@ -115,7 +114,6 @@ namespace Server.Mobiles
 		}
 
 		// Classic list
-		// Used when: !MLQuestSystem.Enabled && !Core.ML
 		private static string[] m_TownNames = new string[]
 		{
 			"Cove", "Britain", "Jhelom",
@@ -125,7 +123,6 @@ namespace Server.Mobiles
 		};
 
 		// ML list, pre-ML quest system
-		// Used when: !MLQuestSystem.Enabled && Core.ML
 		private static string[] m_MLTownNames = new string[]
 		{
 			"Cove", "Serpent's Hold", "Jhelom",
@@ -133,8 +130,7 @@ namespace Server.Mobiles
 		};
 
 		// ML quest system general list
-		// Used when: MLQuestSystem.Enabled && !Region.IsPartOf( "Haven Island" )
-		private static Type[] m_MLQuestTypes =
+		private static Type[] m_QuestTypes =
 		{
 			typeof( EscortToYew ),
 			typeof( EscortToVesper ),
@@ -150,25 +146,6 @@ namespace Server.Mobiles
 			typeof( EscortToBritain )
 			// Ocllo was removed in pub 56
 			//typeof( EscortToOcllo )
-		};
-
-		// ML quest system New Haven list
-		// Used when: MLQuestSystem.Enabled && Region.IsPartOf( "Haven Island" )
-		private static Type[] m_MLQuestTypesNH =
-		{
-			typeof( EscortToNHAlchemist ),
-			typeof( EscortToNHBard ),
-			typeof( EscortToNHWarrior ),
-			typeof( EscortToNHTailor ),
-			typeof( EscortToNHCarpenter ),
-			typeof( EscortToNHMapmaker ),
-			typeof( EscortToNHMage ),
-			typeof( EscortToNHInn ),
-			// Farm destination was removed
-			//typeof( EscortToNHFarm ),
-			typeof( EscortToNHDocks ),
-			typeof( EscortToNHBowyer ),
-			typeof( EscortToNHBank )
 		};
 
 		[Constructable]
@@ -287,7 +264,7 @@ namespace Server.Mobiles
 
 		public override bool HandlesOnSpeech(Mobile from)
 		{
-			if ( MLQuestSystem.Enabled )
+			if ( QuestSystem.Enabled )
 				return false;
 
 			if (from.InRange(this.Location, 3))
@@ -382,7 +359,7 @@ namespace Server.Mobiles
 
 			Mobile master = ControlMaster;
 
-			if ( MLQuestSystem.Enabled || master == null )
+			if ( QuestSystem.Enabled || master == null )
 				return master;
 
 			if (master.Deleted || master.Map != this.Map || !master.InRange(Location, 30) || !master.Alive)
@@ -429,7 +406,7 @@ namespace Server.Mobiles
 
 		public virtual bool CheckAtDestination()
 		{
-			if ( MLQuestSystem.Enabled )
+			if ( QuestSystem.Enabled )
 				return false;
 
 			EDI dest = GetDestination();
@@ -538,7 +515,7 @@ namespace Server.Mobiles
 			if (m_DeleteTimer != null)
 				writer.WriteDeltaTime(m_DeleteTime);
 
-			MLQuestSystem.WriteQuestRef( writer, StaticMLQuester ? null : m_MLQuest );
+			QuestSystem.WriteQuestRef( writer, StaticQuester ? null : m_Quests );
 		}
 
 		public override void Deserialize(GenericReader reader)
@@ -559,10 +536,10 @@ namespace Server.Mobiles
 
 			if ( version >= 1 )
 			{
-				MLQuest quest = MLQuestSystem.ReadQuestRef( reader );
+				Quests quest = QuestSystem.ReadQuestRef( reader );
 
-				if ( MLQuestSystem.Enabled && quest != null && !StaticMLQuester )
-					m_MLQuest = quest;
+				if ( QuestSystem.Enabled && quest != null && !StaticQuester )
+					m_Quests = quest;
 			}
 		}
 
@@ -577,7 +554,7 @@ namespace Server.Mobiles
 			{
 				Mobile escorter = GetEscorter();
 
-				if ( !MLQuestSystem.Enabled && GetDestination() != null )
+				if ( !QuestSystem.Enabled && GetDestination() != null )
 				{
 					if ( escorter == null || escorter == from )
 						list.Add( new AskDestinationEntry( this, from ) );
@@ -623,7 +600,7 @@ namespace Server.Mobiles
 
 		public EDI GetDestination()
 		{
-			if ( MLQuestSystem.Enabled )
+			if ( QuestSystem.Enabled )
 				return null;
 
 			if (m_DestinationString == null && m_DeleteTimer == null)

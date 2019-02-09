@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using Server.Items;
 using Server.Mobiles;
-using Server.Engines.MLQuests;
+using Server.Engines.Quests;
 
 namespace Server.Spells.Spellweaving
 {
@@ -75,13 +75,13 @@ namespace Server.Spells.Spellweaving
 
 			if ( caster is PlayerMobile )
 			{
-				MLQuestContext context = MLQuestSystem.GetContext( (PlayerMobile)caster );
+				QuestContext context = QuestSystem.GetContext( (PlayerMobile)caster );
 
-				if ( context == null || !context.Spellweaving )
-				{
+				//if ( context == null || !context.Spellweaving )
+				//{
 					caster.SendLocalizedMessage( 1073220 ); // You must have completed the epic arcanist quest to use this ability.
 					return false;
-				}
+				//}
 			}
 
 			int mana = ScaleMana( RequiredMana );
