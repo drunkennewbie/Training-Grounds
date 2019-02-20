@@ -165,7 +165,7 @@ namespace Server.Mobiles
 		}
 	}
 
-	public partial class BaseCreature : Mobile, IHonorTarget, IQuestGivers
+	public partial class BaseCreature : Mobile, IHonorTarget
 	{
 		public const int MaxLoyalty = 100;
 
@@ -312,74 +312,6 @@ namespace Server.Mobiles
 
 		public virtual Faction FactionAllegiance{ get{ return null; } }
 		public virtual int FactionSilverWorth{ get{ return 30; } }
-
-		#region New Quest System
-
-		private List<Quests> m_Quests;
-
-		public List<Quests> Quests
-		{
-			get
-			{
-				if (m_Quests == null)
-				{
-					if (StaticQuester)
-						m_Quests = QuestSystem.FindQuestList(GetType());
-					else
-						m_Quests = ConstructQuestList();
-
-					if (m_Quests == null)
-						return QuestSystem.EmptyList; // return EmptyList, but don't cache it (run construction again next time)
-				}
-
-				return m_Quests;
-			}
-		}
-
-		public virtual bool CanGiveQuest { get { return (Quests.Count != 0); } }
-		public virtual bool StaticQuester { get { return true; } }
-
-		protected virtual List<Quests> ConstructQuestList()
-		{
-			return null;
-		}
-
-		public virtual bool CanShout { get { return false; } }
-
-		public const int ShoutRange = 8;
-		public static readonly TimeSpan ShoutDelay = TimeSpan.FromMinutes(1);
-
-		private DateTime m_NextShout;
-
-		private void CheckShout(PlayerMobile pm, Point3D oldLocation)
-		{
-			if (m_NextShout > DateTime.UtcNow || pm.Hidden || !pm.Alive)
-				return;
-
-			int shoutRange = ShoutRange;
-
-			if (!InRange(pm.Location, shoutRange) || InRange(oldLocation, shoutRange) || !CanSee(pm) || !InLOS(pm))
-				return;
-
-			QuestContext context = QuestSystem.GetContext(pm);
-
-			if (context != null && context.IsFull)
-				return;
-
-			Quests quest = QuestSystem.RandomStarterQuest(this, pm, context);
-
-			if (quest == null || !quest.Activated || (context != null && context.IsDoingQuest(quest)))
-				return;
-
-			Shout(pm);
-			m_NextShout = DateTime.UtcNow + ShoutDelay;
-		}
-
-		public virtual void Shout(PlayerMobile pm)
-		{
-		}
-
-		#endregion
 
 
 		#region Bonding
@@ -2364,12 +2296,6 @@ namespace Server.Mobiles
 			else if ( CheckGold( from, dropped ) )
 				return true;
 
-			if (CanGiveQuest && from is PlayerMobile)
-			{
-				QuestSystem.Tell(this, (PlayerMobile)from, 1074893); // You need to mark your quest items so I don't take the wrong object.  Then speak to me.
-				return false;
-			}
-
 			// Note: Yes, this happens for all questers (regardless of type, e.g. escorts),
 			// even if they can't offer you anything at the moment
 
@@ -2975,8 +2901,6 @@ namespace Server.Mobiles
 
 			if ( IsAnimatedDead )
 				Spells.Necromancy.AnimateDeadSpell.Unregister( m_SummonMaster, this );
-
-				QuestSystem.HandleDeletion( this );
 
 			base.OnAfterDelete();
 		}
@@ -3660,9 +3584,6 @@ namespace Server.Mobiles
 				}
 			}
 			/* End notice sound */
-
-			if ( CanShout && m is PlayerMobile )
-				CheckShout( (PlayerMobile)m, oldLocation );
 
 			if ( m_NoDupeGuards == m )
 				return;
@@ -4437,9 +4358,7 @@ namespace Server.Mobiles
 					from.Target = new DeathAdderCharmTarget( this );
 				}
 			}
-			if (CanGiveQuest && from is PlayerMobile)
-				QuestSystem.OnDoubleClick(this, (PlayerMobile)from);
-
+		
 				base.OnDoubleClick( from );
 		}
 
@@ -4478,9 +4397,6 @@ namespace Server.Mobiles
 		public override void AddNameProperties( ObjectPropertyList list )
 		{
 			base.AddNameProperties( list );
-
-			if (CanGiveQuest)
-				list.Add(1072269); // Quest Giver
 
 			if ( Core.ML )
 			{
@@ -4919,13 +4835,10 @@ namespace Server.Mobiles
 
 						if ( pm != null )
 						{
+							#region New Quest
+							QuestHelper.CheckCreature(pm, this);
+							#endregion
 							
-								QuestSystem.HandleKill( pm, this );
-
-								// Kills are given to *everyone* with looting right in the ML quest system
-								//givenQuestKill = true;
-							
-
 							if ( givenQuestKill )
 								continue;
 

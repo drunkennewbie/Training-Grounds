@@ -75,7 +75,7 @@ namespace Server.Spells.Spellweaving
 
 			if ( caster is PlayerMobile )
 			{
-				QuestContext context = QuestSystem.GetContext( (PlayerMobile)caster );
+				
 
 				//if ( context == null || !context.Spellweaving )
 				//{

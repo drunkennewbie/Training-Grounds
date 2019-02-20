@@ -30,7 +30,7 @@ namespace Server.Spells.Spellweaving
 			// This is done after casting completes
 			if ( caster is PlayerMobile )
 			{
-				QuestContext context = QuestSystem.GetContext( (PlayerMobile)caster );
+		
 
 				//if ( context == null || !context.SummonFiend )
 				//{

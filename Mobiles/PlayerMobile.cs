@@ -1207,6 +1207,11 @@ namespace Server.Mobiles
 				if ( pm.m_Quest != null )
 					pm.m_Quest.StartTimer();
 
+				#region New Quest
+				QuestHelper.StartTimer(pm);
+				#endregion
+
+
 				pm.BedrollLogout = false;
 				pm.LastOnline = DateTime.UtcNow;
 			}
@@ -1260,6 +1265,10 @@ namespace Server.Mobiles
 
 				if ( pm.m_Quest != null )
 					pm.m_Quest.StopTimer();
+
+				#region New Quest
+				QuestHelper.StopTimer(pm);
+				#endregion
 
 				pm.m_SpeechLog = null;
 				pm.LastOnline = DateTime.UtcNow;
@@ -1645,6 +1654,14 @@ namespace Server.Mobiles
 
 			if ( from == this )
 			{
+				#region New Quest
+				if (Alive)
+				{
+					QuestHelper.GetContextMenuEntries(list);
+
+				}
+				#endregion
+
 				if ( m_Quest != null )
 					m_Quest.GetContextMenuEntries( list );
 
@@ -1666,8 +1683,6 @@ namespace Server.Mobiles
 						}
 					}
 
-					if ( QuestSystem.Enabled )
-						list.Add( new CallbackEntry( 6169, new ContextCallback( ToggleQuestItem ) ) ); // Toggle Quest Item
 				}
 
 				BaseHouse house = BaseHouse.FindHouseAt( this );
@@ -2179,61 +2194,7 @@ namespace Server.Mobiles
 
 		#endregion
 
-		#region Toggle Quest Item
-
-		private void ToggleQuestItem()
-		{
-			if ( !CheckAlive() )
-				return;
-
-			ToggleQuestItemTarget();
-		}
-
-		private void ToggleQuestItemTarget()
-		{
-			Server.Engines.Quests.Gumps.BaseQuestGump.CloseOtherGumps( this );
-			CloseGump( typeof( Server.Engines.Quests.Gumps.QuestLogDetailedGump ) );
-			CloseGump( typeof( Server.Engines.Quests.Gumps.QuestLogGump ) );
-			CloseGump( typeof( Server.Engines.Quests.Gumps.NQuestOfferGump ) );
-			//CloseGump( typeof( UnknownGump802 ) );
-			//CloseGump( typeof( UnknownGump804 ) );
-
-			BeginTarget( -1, false, TargetFlags.None, new TargetCallback( ToggleQuestItem_Callback ) );
-			SendLocalizedMessage( 1072352 ); // Target the item you wish to toggle Quest Item status on <ESC> to cancel
-		}
-
-		private void ToggleQuestItem_Callback( Mobile from, object obj )
-		{
-			if ( !CheckAlive() )
-				return;
-
-			Item item = obj as Item;
-
-			if ( item == null )
-				return;
-
-			if ( from.Backpack == null || item.Parent != from.Backpack )
-			{
-				SendLocalizedMessage( 1074769 ); // An item must be in your backpack (and not in a container within) to be toggled as a quest item.
-			}
-			else if ( item.QuestItem )
-			{
-				item.QuestItem = false;
-				SendLocalizedMessage( 1072354 ); // You remove Quest Item status from the item
-			}
-			else if ( QuestSystem.MarkQuestItem( this, item ) )
-			{
-				SendLocalizedMessage( 1072353 ); // You set the item to Quest Item status
-			}
-			else
-			{
-				SendLocalizedMessage( 1072355, "", 0x23 ); // That item does not match any of your quest criteria
-			}
-
-			ToggleQuestItemTarget();
-		}
-
-		#endregion
+		
 
 		private void ToggleTrades()
 		{
@@ -2917,8 +2878,6 @@ namespace Server.Mobiles
 
 			Server.Guilds.Guild.HandleDeath( this, killer );
 
-			QuestSystem.HandleDeath( this );
-
 			#region Dueling
 			if ( m_DuelContext != null )
 				m_DuelContext.OnDeath( this, c );
@@ -3095,6 +3054,12 @@ namespace Server.Mobiles
 			m_ChampionTitles = new ChampionTitleInfo();
 
 			InvalidateMyRunUO();
+
+			#region New Quest
+			m_Quests = new List<BaseQuest>();
+			m_Chains = new Dictionary<QuestChain, BaseChain>();
+			m_DoneQuests = new List<QuestRestartInfo>();
+			#endregion
 		}
 
 		public override bool MutateSpeech( List<Mobile> hears, ref string text, ref object context )
@@ -3358,6 +3323,15 @@ namespace Server.Mobiles
 
 			switch ( version )
 			{
+				case 30:
+					{
+						#region New Quests
+						m_Quests = QuestReader.Quests(reader, this);
+						m_Chains = QuestReader.Chains(reader);
+						m_DoneQuests = new List<QuestRestartInfo>();
+						#endregion
+						goto case 29;
+					}
 				case 29:
 				{
 					if (reader.ReadBool())
@@ -3601,6 +3575,23 @@ namespace Server.Mobiles
 			if (m_RecentlyReported == null)
 				m_RecentlyReported = new List<Mobile>();
 
+			#region New Quest
+			if (m_Quests == null)
+			{
+				m_Quests = new List<BaseQuest>();
+			}
+
+			if (m_Chains == null)
+			{
+				m_Chains = new Dictionary<QuestChain, BaseChain>();
+			}
+			if (m_DoneQuests == null)
+			{
+				m_DoneQuests = new List<QuestRestartInfo>();
+			}
+			#endregion
+
+
 			// Professions weren't verified on 1.0 RC0
 			if ( !CharacterCreation.VerifyProfession( m_Profession ) )
 				m_Profession = 0;
@@ -3667,7 +3658,12 @@ namespace Server.Mobiles
 
 			base.Serialize( writer );
 
-			writer.Write( (int) 29 ); // version
+			writer.Write( (int) 30 ); // version
+
+			#region New Quest
+			QuestWriter.Quests(writer, m_Quests);
+			QuestWriter.Chains(writer, m_Chains);
+			#endregion
 
 			if (m_StuckMenuUses != null)
 			{
@@ -3899,7 +3895,6 @@ namespace Server.Mobiles
 			if ( faction != null )
 				faction.RemoveMember( this );
 
-			QuestSystem.HandleDeletion( this );
 
 			BaseHouse.HandleDeletion( this );
 
@@ -4096,7 +4091,14 @@ namespace Server.Mobiles
 			}
 		}
 		#endregion
+		#region New Quests
+		private List<BaseQuest> m_Quests;
+		private Dictionary<QuestChain, BaseChain> m_Chains;
 
+		public List<BaseQuest> Quests { get { return m_Quests; } }
+
+		public Dictionary<QuestChain, BaseChain> Chains { get { return m_Chains; } }
+		#endregion
 		#region Quests
 		private QuestSystem m_Quest;
 		private List<QuestRestartInfo> m_DoneQuests;
@@ -4187,10 +4189,6 @@ namespace Server.Mobiles
 				if ( acc != null )
 					acc.RemoveYoungStatus( 1019036 ); // You have successfully obtained a respectable skill level, and have outgrown your status as a young player!
 			}
-
-			if ( QuestSystem.Enabled )
-				QuestSystem.HandleSkillGain( this, skill );
-
 			InvalidateMyRunUO();
 		}
 
