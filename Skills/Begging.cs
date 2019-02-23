@@ -187,48 +187,61 @@ namespace Server.SkillHandlers
 					bool orcs = IsOrc(m_Target);
 					bool savage = IsSavage(m_Target);
 
-					double badKarmaChance = 0.5 - ((double)m_From.Karma / 8570); //Lower your Karma Less chance you get
+					var badKarmaChance = 0.5 - ((double)m_From.Karma / 8570); //Lower your Karma Less chance you get
+					var goodKarmaChance = 0.5 + (m_From.Karma / 8570.0); //Higher Karma less chance for Monsters
 
+					Console.WriteLine("Karma:{0}", badKarmaChance);
+					Console.WriteLine("Karma:{0}", goodKarmaChance);
 
-					if (m_From.Karma < 0 && badKarmaChance > Utility.RandomDouble())
+					if (!orcs && !savage && m_From.Karma < 0 && badKarmaChance > Utility.RandomDouble())
 					{
 						if (!orcs)
-						m_Target.PublicOverheadMessage(MessageType.Regular, m_Target.SpeechHue, 500406);
+							m_Target.PublicOverheadMessage(MessageType.Regular, m_Target.SpeechHue, 500406);
 						// Thou dost not look trustworthy... no gold for thee today!
 					}
 					m_From.NextSkillTime = Core.TickCount + 10000; //Set next skill use 10 seconds
 					if (orcs)
 					{
-						if (m_From.CheckTargetSkill(SkillName.Begging, m_From, 80, 100)) //Need 80+ Skill to Attempt to Beg Orc
+						if (m_From.Karma > 0 && goodKarmaChance > Utility.RandomDouble())
+							m_From.SendMessage("You seem to notable to beg");
+						else
 						{
-							int begchance = Utility.Random(100);//Lets see if you have bad accident
-							if (begchance <= 10) //10% chance to blow up mask 
+							Console.WriteLine("Orc Begged");
+							if (m_From.CheckTargetSkill(SkillName.Begging, m_Target, 80, 100)) //Need 80+ Skill to Attempt to Beg Orc
 							{
-								Item item = m_From.FindItemOnLayer(Layer.Helm);
-
-								if (item is OrcishKinMask)
+								int begchance = Utility.Random(100);//Lets see if you have bad accident
+								if (begchance <= 10) //10% chance to blow up mask 
 								{
-									m_From.SendMessage("{0} alerts the other orcs that you are a fake", m_Target); //Orcs dont beg
-									AOS.Damage(m_From, 50, 0, 100, 0, 0, 0);
-									item.Delete();
-									m_From.FixedParticles(0x36BD, 20, 10, 5044, EffectLayer.Head);
-									m_From.PlaySound(0x307);
-								}
-							}
-							else if (begchance <= 30) //30% to just attack player
-							{
+									Item item = m_From.FindItemOnLayer(Layer.Helm);
 
-								m_Target.Attack(m_From);
-								m_From.SendMessage("{0} seems upset", m_Target); //Well they dont like beggers
+									if (item is OrcishKinMask)
+									{
+										m_From.SendMessage("{0} alerts the other orcs that you are a fake", m_Target); //Orcs dont beg
+										AOS.Damage(m_From, 50, 0, 100, 0, 0, 0);
+										item.Delete();
+										m_From.FixedParticles(0x36BD, 20, 10, 5044, EffectLayer.Head);
+										m_From.PlaySound(0x307);
+									}
+								}
+								else if (begchance <= 30) //30% to just attack player
+								{
+
+									m_Target.Attack(m_From);
+									m_From.SendMessage("{0} seems upset", m_Target); //Well they dont like beggers
+								}
+								else
+									BegChance(m_From, m_Target, true, false); //What is your chance to beg?
 							}
 							else
-								BegChance(m_From, m_Target, true, false); //What is your chance to beg?
+							{
+								m_From.SendMessage("They don't seem to have noticed you");
+							}
 						}
-						m_From.SendMessage("You don't like you have enough skill to beg from that creature");
 					}
-					else if ( savage == true ) 
+					else if (savage == true)
 					{
-						if (m_From.CheckTargetSkill(SkillName.Begging, m_From, 80, 100)) //Need 80+ Skill to Attempt to beg from Savages
+						Console.WriteLine("Savage Beg");
+						if (m_From.CheckTargetSkill(SkillName.Begging, m_Target, 80, 100)) //Need 80+ Skill to Attempt to beg from Savages
 						{
 							int begchance = Utility.Random(100);
 							if (begchance <= 10) //10% chance to blow up paint, Pride Tribesman/Women!
@@ -252,11 +265,16 @@ namespace Server.SkillHandlers
 							else
 								BegChance(m_From, m_Target, false, true); //Whats your Beg Chance?
 						}
-						m_From.SendMessage("You don't like you have enough skill to beg from that creature");
-					}	
+					}
+					else if (m_From.CheckTargetSkill(SkillName.Begging, m_Target, 0, 100))
+					{
+						Console.WriteLine("Human Beg");
+						BegChance(m_From, m_Target, false, false); //Not a Savage or Orc? Human than!
+					}
 					else
 					{
-						BegChance(m_From, m_Target, false, false); //Not a Savage or Orc? Human than!
+						Console.WriteLine("Fail Beg");
+						m_Target.SendLocalizedMessage(500404); // They seem unwilling to give you any money.
 					}
 				}
 			}
@@ -276,7 +294,7 @@ namespace Server.SkillHandlers
 					OrcBeg(m, t, chance);
 					//m.Say("Orc File {0}", chance);
 				}
-				else if (chance >=.95 && savage == true) //Greater than .95 and Savage
+				else if (chance >= .95 && savage == true) //Greater than .95 and Savage
 				{
 					SavageBeg(m, t, chance);
 					//m.Say("Savage File {0}", chance);
@@ -310,7 +328,7 @@ namespace Server.SkillHandlers
 					else if (rand == 2) //Fur Boots
 					{
 						reward = new FurBoots();
-		
+
 					}
 				}
 				if (chance >= .95) //Vendor Only
@@ -320,27 +338,27 @@ namespace Server.SkillHandlers
 					if (rand == 0)
 					{
 						reward = new Bedroll();
-						
+
 					}
 					else if (rand == 1)
 					{
 						reward = new Cookies();
-						
+
 					}
 					else if (rand == 2)
 					{
 						reward = new FishSteak();
-					
+
 					}
 					else if (rand == 3)
 					{
 						reward = new FishingPole();
-					
+
 					}
 					else if (rand == 4)
 					{
 						reward = new FlowerGarland();
-				
+
 					}
 					else if (rand == 5)
 					{
@@ -350,12 +368,12 @@ namespace Server.SkillHandlers
 					else if (rand == 6)
 					{
 						reward = new Turnip();
-					
+
 					}
 					else if (rand == 7)
 					{
 						reward = new CeramicMug();
-					
+
 					}
 
 				}
@@ -431,7 +449,7 @@ namespace Server.SkillHandlers
 				Mobile t = (Mobile)targeted;
 				Item reward = null;
 				string rewardName = "";
-				
+
 
 				if (chance >= .99 && m.Skills.Begging.Base >= 100)
 				{
@@ -484,14 +502,14 @@ namespace Server.SkillHandlers
 						reward = new BeggerCoins(25);
 						rewardName = "25 Dull Silver Coins.";
 					}
-		
+
 
 				}
 				Reward(m, t, reward, rewardName);
 			}
 			public static void JunkBeg(Mobile m, object targeted, double chance) //Nothing Good. Here have some crap
 			{
-				
+
 				Mobile t = (Mobile)targeted;
 				bool orcs = IsOrc(t);
 				Container theirPack = t.Backpack;
@@ -505,17 +523,17 @@ namespace Server.SkillHandlers
 					if (rand == 0)
 					{
 						reward = new WoodenBowlOfPeas();
-					
+
 					}
 					else if (rand == 1)
 					{
 						reward = new CheeseWedge();
-					
+
 					}
 					else if (rand == 2)
 					{
 						reward = new Dates();
-					
+
 					}
 					else if (rand == 3)
 					{
@@ -525,17 +543,17 @@ namespace Server.SkillHandlers
 					else if (rand == 4)
 					{
 						reward = new BeverageBottle(BeverageType.Ale);
-					
+
 					}
 					else if (rand == 5)
 					{
 						reward = new CheesePizza();
-					
+
 					}
 					else if (rand == 6)
 					{
 						reward = new Shirt();
-					
+
 					}
 				}
 				else if (chance >= .25)
@@ -545,12 +563,12 @@ namespace Server.SkillHandlers
 					if (rand == 0)
 					{
 						reward = new FrenchBread();
-				
+
 					}
 					else
 					{
 						reward = new BeggerCoins(1);
-					
+
 					}
 				}
 
@@ -615,7 +633,7 @@ namespace Server.SkillHandlers
 							t.PublicOverheadMessage(MessageType.Regular, t.SpeechHue, 500407);
 						// I have not enough money to give thee any!
 					}
-					
+
 				}
 				Reward(m, t, reward, rewardName);
 			}
@@ -623,21 +641,22 @@ namespace Server.SkillHandlers
 			public static void Reward(Mobile m, object targeted, Item reward, String rewardName) //Gift Time!
 			{
 				Mobile t = (Mobile)targeted;
+
 				
-				t.Say(1074854); // Here, take this...
 				if (reward != null)
 				{
 					m.AddToBackpack(reward);
 					if (rewardName == "")
 					{
+						t.Say(1074854); // Here, take this...
 						rewardName = reward.Name;
 						m.SendLocalizedMessage(1074853, rewardName); // You have been given ~1_name~
 					}
 				}
 				else
 					m.SendMessage("They don't seem notice you"); //Nope didnt get anything at all!
-				
-				
+
+
 
 				if (m.Karma > -3000) //If greater than -3K Karma you lose some
 				{
@@ -650,7 +669,7 @@ namespace Server.SkillHandlers
 
 					Titles.AwardKarma(m, -toLose, true);
 				}
-				
+
 				else
 				{
 					t.SendLocalizedMessage(500404); // They seem unwilling to give you any money.
@@ -659,7 +678,7 @@ namespace Server.SkillHandlers
 		}
 	}
 }
-			
-		
-	
+
+
+
 

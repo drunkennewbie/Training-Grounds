@@ -381,6 +381,19 @@ namespace Server.SkillHandlers
 							{
 								m_Creature.PrivateOverheadMessage( MessageType.Regular, 0x3B2, 502799, m_Tamer.NetState ); // It seems to accept you as master.
 								m_Creature.Owners.Add( m_Tamer );
+
+								#region Battle Chicken
+								if (m_Creature is BattleChickenLizard)
+								{
+									m_Creature.ActiveSpeed = 0.2;
+									m_Creature.PassiveSpeed = 0.4;
+
+									if (m_Creature.Frozen)
+										m_Creature.Frozen = false;
+
+									m_Creature.StopFlee();
+								}
+								#endregion
 							}
 
 							m_Creature.SetControlMaster( m_Tamer );

@@ -9,6 +9,7 @@ namespace Server.Mobiles
 	[CorpseName( "an orcish corpse" )]
 	public class Orc : BaseCreature
 	{
+
 		public override InhumanSpeech SpeechType{ get{ return InhumanSpeech.Orc; } }
 
 		[Constructable]

@@ -33,3 +33,13 @@ General Testing Grounds of Ideas.
 - Took ServUO ML Quest System and Merged it to RunUO
 	-For Older Servers that Want to use the ML Quest System and hate the Current one.
 	-Anything with #Region New Quest needs to be updated to work this. 
+	
+### Feburary 21, 2019
+-Updating Begging a little, Made it slightly harder. and new items.
+-Added Bardable Horses
+-Added Trash Pile (Will Edit at a later time) 
+
+### Feburary 22, 2019
+-Battle Lizards Pets (From ServUO)
+	-Chicken Lizards Don't Drop Eggs
+	-No way to Obtain the Incubator/Eggs/Collar/Chicken Coop at the moment

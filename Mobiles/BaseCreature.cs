@@ -258,7 +258,7 @@ namespace Server.Mobiles
 
 		private bool m_SeeksHome;
 
-		[CommandProperty( AccessLevel.GameMaster )]
+		 [CommandProperty( AccessLevel.GameMaster )]
 		public bool SeeksHome
 		{
 			get
