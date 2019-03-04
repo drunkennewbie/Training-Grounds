@@ -130,6 +130,7 @@ namespace Server.SkillHandlers
 						{
 							DateTime now = DateTime.UtcNow;
 							BaseVendor targvend = targ as BaseVendor; //Is Target Vendor?
+							Console.WriteLine(targvend.GeneralNextBegging);
 							if (targvend.NextBegging > now) //Vendor be used
 							{
 								from.SendLocalizedMessage(500404); // They seem unwilling to give you any money.
@@ -137,11 +138,27 @@ namespace Server.SkillHandlers
 							}
 							else
 							{
+								Console.WriteLine(targvend.GeneralNextBegging);
 								targvend.NextBegging = now + TimeSpan.FromMinutes(Utility.RandomMinMax(60, 90)); //Set Vendor Timer 60-90 minutes (Change for Balance)
 							}
 						}
-
-						// Face eachother
+						else
+						{
+							DateTime now = DateTime.UtcNow;
+							BaseCreature targcreat = targ as BaseCreature;
+							Console.WriteLine(targcreat.GeneralNextBegging);
+							if (targcreat.GeneralNextBegging > now) //Vendor be used
+							{
+								from.SendLocalizedMessage(500404); // They seem unwilling to give you any money.
+								return;
+							}
+							else
+							{
+								Console.WriteLine(targcreat.GeneralNextBegging);
+								targcreat.GeneralNextBegging = now + TimeSpan.FromMinutes(Utility.RandomMinMax(5, 10)); //Set Vendor Timer 60-90 minutes (Change for Balance)
+							}
+						}
+							// Face eachother
 						from.Direction = from.GetDirectionTo(targ);
 						targ.Direction = targ.GetDirectionTo(from);
 
@@ -188,19 +205,18 @@ namespace Server.SkillHandlers
 					bool savage = IsSavage(m_Target);
 
 					var badKarmaChance = 0.5 - ((double)m_From.Karma / 8570); //Lower your Karma Less chance you get
-					var goodKarmaChance = 0.5 + (m_From.Karma / 8570.0); //Higher Karma less chance for Monsters
+					var goodKarmaChance = 0.5 + ((double)m_From.Karma / 8570.0); //Higher Karma less chance for Monsters
 
-					Console.WriteLine("Karma:{0}", badKarmaChance);
-					Console.WriteLine("Karma:{0}", goodKarmaChance);
-
+					m_From.NextSkillTime = Core.TickCount + 10000; //Set next skill use 10 seconds
 					if (!orcs && !savage && m_From.Karma < 0 && badKarmaChance > Utility.RandomDouble())
 					{
-						if (!orcs)
+						if (!orcs && m_From.CheckTargetSkill(SkillName.Begging, m_Target, 0, 100))
+							m_Target.PublicOverheadMessage(MessageType.Regular, m_Target.SpeechHue, 500406);
+						else
 							m_Target.PublicOverheadMessage(MessageType.Regular, m_Target.SpeechHue, 500406);
 						// Thou dost not look trustworthy... no gold for thee today!
 					}
-					m_From.NextSkillTime = Core.TickCount + 10000; //Set next skill use 10 seconds
-					if (orcs)
+					else if (orcs)
 					{
 						if (m_From.Karma > 0 && goodKarmaChance > Utility.RandomDouble())
 							m_From.SendMessage("You seem to notable to beg");
@@ -337,7 +353,7 @@ namespace Server.SkillHandlers
 
 					if (rand == 0)
 					{
-						reward = new Bedroll();
+						reward = new BegBedRoll();
 
 					}
 					else if (rand == 1)
@@ -516,44 +532,45 @@ namespace Server.SkillHandlers
 				Item reward = null;
 				string rewardName = "";
 
-				if (chance >= .76)
+				if (chance >= .76 && m.Skills.Begging.Base >= 75)
 				{
-					int rand = Utility.Random(6);
+					int rand = Utility.Random(10);
 
 					if (rand == 0)
 					{
 						reward = new WoodenBowlOfPeas();
-
+						rewardName = "a bowl of peas";
 					}
 					else if (rand == 1)
 					{
 						reward = new CheeseWedge();
-
+						rewardName = "a cheese wedge";
 					}
 					else if (rand == 2)
 					{
 						reward = new Dates();
+						rewardName = "some dates";
 
 					}
 					else if (rand == 3)
 					{
 						reward = new BeggerCoins(6);
-						rewardName = "6 Dull Silver Coins.";
+						rewardName = "6 dull silver coins.";
 					}
 					else if (rand == 4)
 					{
 						reward = new BeverageBottle(BeverageType.Ale);
-
+						rewardName = "a bottle of ale";
 					}
 					else if (rand == 5)
 					{
 						reward = new CheesePizza();
-
+						rewardName = "a cheese pizza";
 					}
 					else if (rand == 6)
 					{
 						reward = new Shirt();
-
+						rewardName = "a shirt";
 					}
 				}
 				else if (chance >= .25)
@@ -563,12 +580,13 @@ namespace Server.SkillHandlers
 					if (rand == 0)
 					{
 						reward = new FrenchBread();
+						rewardName = "french bread";
 
 					}
 					else
 					{
 						reward = new BeggerCoins(1);
-
+						rewardName = "beggar coins";
 					}
 				}
 
@@ -641,24 +659,22 @@ namespace Server.SkillHandlers
 			public static void Reward(Mobile m, object targeted, Item reward, String rewardName) //Gift Time!
 			{
 				Mobile t = (Mobile)targeted;
+				bool orcs = IsOrc(t);
+				bool savage = IsSavage(t);
 
-				
 				if (reward != null)
 				{
 					m.AddToBackpack(reward);
-					if (rewardName == "")
-					{
-						t.Say(1074854); // Here, take this...
-						rewardName = reward.Name;
-						m.SendLocalizedMessage(1074853, rewardName); // You have been given ~1_name~
-					}
+					t.Say(1074854); // Here, take this...
+					m.SendLocalizedMessage(1074853, rewardName); // You have been given ~1_name~
+
 				}
 				else
 					m.SendMessage("They don't seem notice you"); //Nope didnt get anything at all!
 
 
 
-				if (m.Karma > -3000) //If greater than -3K Karma you lose some
+				if (!orcs && !savage && m.Karma > -3000) //If greater than -3K Karma you lose some
 				{
 					int toLose = m.Karma + 3000;
 

@@ -235,7 +235,6 @@ namespace Server.Items
 
 			if ( Deleted || pet == null || this.RootParent != from )
 				return;
-
 			if ( Charges == 0 )
 			{
 				SendLocalizedMessageTo( from, 1054122 ); // The Crystal Ball darkens. It must be charged before it can be used again.

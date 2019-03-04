@@ -31,15 +31,23 @@ General Testing Grounds of Ideas.
 ### Feburary 19, 2019
 - After 2 weeks! Finally got it to work
 - Took ServUO ML Quest System and Merged it to RunUO
-	-For Older Servers that Want to use the ML Quest System and hate the Current one.
-	-Anything with #Region New Quest needs to be updated to work this. 
+	- For Older Servers that Want to use the ML Quest System and hate the Current one.
+	- Anything with #Region New Quest needs to be updated to work this. 
 	
 ### Feburary 21, 2019
--Updating Begging a little, Made it slightly harder. and new items.
--Added Bardable Horses
--Added Trash Pile (Will Edit at a later time) 
+- Updating Begging a little, Made it slightly harder. and new items.
+- Added Bardable Horses
+- Added Trash Pile (Will Edit at a later time) 
 
 ### Feburary 22, 2019
--Battle Lizards Pets (From ServUO)
-	-Chicken Lizards Don't Drop Eggs
-	-No way to Obtain the Incubator/Eggs/Collar/Chicken Coop at the moment
+- Battle Lizards Pets (From ServUO)
+	- Chicken Lizards Don't Drop Eggs
+	- No way to Obtain the Incubator/Eggs/Collar/Chicken Coop at the moment
+
+### March 3, 2019
+- Retweek Battle Lizards
+	- Now its Battle Lizards + Hue Chickens
+- Quest Added to Obtain Chicken Eggs
+	- Requires 10 Zoogi Fungi and 2 Scales (Any  type)
+- Removed Revealing Action from Foraging
+- Added Jewelry Box for future reference

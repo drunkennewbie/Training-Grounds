@@ -107,7 +107,7 @@ namespace Server.Items
 				int c = 1112468;
 
 				if (m_Stage == EggStage.Mature)
-					c = m_IsBattleChicken ? 1112468 : 1112467;
+					this.Name = "a chicken egg" ;
 				else if (m_Stage == EggStage.Burnt)
 					c = 1112466;
 				else
@@ -256,10 +256,7 @@ namespace Server.Items
 						if (CanMutate && chance >= Utility.RandomDouble())
 						{
 							m_IsBattleChicken = true;
-							Hue = GetRandomHiryuHue();
 						}
-						else
-							Hue = 555;
 
 						break;
 					}
@@ -272,7 +269,43 @@ namespace Server.Items
 			InvalidateProperties();
 		}
 		
-		private int GetRandomHiryuHue()
+		private int GetRandomHueChickenLizard()
+		{
+			int rand = Utility.Random(100);
+			if (rand > 5)
+			{
+				return 0;
+			}
+			else if (rand <= 5)
+			{
+				switch (Utility.Random(20))
+				{
+					case 0: return 1173;  //Cyan
+					case 1: return 1160;  //Strong Cyan
+					case 2: return 675;   //Light Green
+					case 3: return 72;    //Strong Green
+					case 4: return 2213;  //Gold
+					case 5: return 1463;   //Strong Yellow
+					case 6: return 2425;  //Agapite
+					case 7: return 26;    //Strong Purple
+					case 8: return 1151;  //Ice Green
+					case 9: return 101;  //Light Blue
+					case 10: return 1159; //yellow blue
+					case 11: return 30; // Dark Pink
+					case 12: return 1920;
+					case 13: return 1150; //Vesper
+					case 14: return 2072; //Camo
+					case 15: return 2727;
+					case 16: return 2721;
+					case 17: return 2503; //Brimstone
+					case 18: return 2075; // White
+					case 19: return 2961; // Fire
+
+				}
+			}
+			return 0;
+		}
+		private int GetRandomHueChicken()
 		{
 			switch (Utility.Random(12))
 			{
@@ -285,19 +318,24 @@ namespace Server.Items
 				case 6: return 2425;  //Agapite
 				case 7: return 26;    //Strong Purple
 				case 8: return 1151;  //Ice Green
-				case 9: return 1152;  //Ice Blue
-				case 10: return 101;  //Light Blue
-				case 11: return 1159; //yellow blue
+				case 9: return 101;  //Light Blue
+				case 10: return 1159; //yellow blue
+				case 11: return 30; // Dark Pink
+				case 12: return 1150; //Vesper
+				case 13: return 2072; //Camo
+				case 14: return 2503; //Brimstone
+				case 15: return 2727; //Hotpink
+				case 16: return 1281; //Gold
 			}
-
+			
 			return 0;
 		}
+
 
 		public void BurnEgg()
 		{
 			m_Stage = EggStage.Burnt;
 		}
-
 		public override void OnDoubleClick(Mobile from)
 		{
 			if (IsChildOf(from.Backpack))
@@ -308,7 +346,6 @@ namespace Server.Items
 					from.SendGump(new ConfirmHatchGump2(from, this));
 			}
 		}
-
 		public void TryHatchEgg(Mobile from)
 		{
 			if (m_Stage == EggStage.Mature)
@@ -316,27 +353,28 @@ namespace Server.Items
 			else
 				CrumbleEgg(from);
 		}
-
 		public virtual void OnHatch(Mobile from)
 		{
 			BaseCreature bc;
 
 			if (m_IsBattleChicken)
 			{
-				from.SendLocalizedMessage(1112478); //You hatch a battle chicken lizard!!
+				from.SendLocalizedMessage(1112477); //You hatch a chicken lizard!!
 				bc = new BattleChickenLizard();
-				bc.Hue = this.Hue;
+				bc.Hue = GetRandomHueChickenLizard();
+			//	Console.WriteLine("Battle Chicken Hue: {0} ", bc.Hue);
 			}
 			else
 			{
-				from.SendLocalizedMessage(1112477); //You hatch a chicken lizard.
-				bc = new ChickenLizard();
+				from.SendMessage("You hatched a modified chicken!");
+				bc = new Chicken();
+				bc.Hue = GetRandomHueChicken();
+				//Console.WriteLine("Chicken Hue: {0} ", bc.Hue);
 			}
 
 			bc.MoveToWorld(from.Location, from.Map);
 			Delete();
 		}
-
 		public void CrumbleEgg(Mobile from)
 		{
 			from.SendLocalizedMessage(1112447); //You hatch the egg but it crumbles in your hands!

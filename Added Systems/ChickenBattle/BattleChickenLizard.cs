@@ -9,19 +9,18 @@ namespace Server.Mobiles
 		public BattleChickenLizard()
 			: base(AIType.AI_Animal, FightMode.Aggressor, 10, 1, 0.05, 0.1)
 		{
-			Name = "a battle chicken lizard";
+			Name = "a chicken lizard";
 			Body = 716;
 
-			SetStr(94, 125);
-			SetDex(78, 125);
-			SetInt(6, 13);
+			SetStr(25, 50);
+			SetDex(25, 50);
+			SetInt(5, 10);
 
-			SetHits(94, 177);
+			SetHits(30, 50);
 
-			SetDamage(5, 15);
+			SetDamage(5, 10);
 
 			SetDamageType(ResistanceType.Physical, 100);
-
 			SetResistance(ResistanceType.Physical, 15, 20);
 			SetResistance(ResistanceType.Fire, 5, 15);
 

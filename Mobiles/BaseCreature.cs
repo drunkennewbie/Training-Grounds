@@ -252,6 +252,11 @@ namespace Server.Mobiles
 
 		#endregion
 
+		#region Begging Flags
+		public virtual DateTime GeneralNextBegging { get; set; } //Base Begging Right
+
+		#endregion
+
 		public virtual InhumanSpeech SpeechType{ get{ return null; } }
 
 		/* Do not serialize this till the code is finalized */
@@ -1028,6 +1033,118 @@ namespace Server.Mobiles
 
 			return ( (double)chance / 1000 );
 		}
+
+		public double GetControlChanceHerdering(Mobile m)
+		{
+			return GetControlChanceHerding(m, false);
+		}
+
+		public virtual double GetControlChanceHerding(Mobile m, bool useBaseSkill)
+		{
+			if (m_dMinTameSkill <= 29.1 || m_bSummoned || m.AccessLevel >= AccessLevel.GameMaster)
+				return 1.0;
+
+			double dMinTameSkill = m_dMinTameSkill;
+
+			if (dMinTameSkill > -24.9 && Server.SkillHandlers.AnimalTaming.CheckMastery(m, this))
+				dMinTameSkill = -24.9;
+
+			int taming = (int)((useBaseSkill ? m.Skills[SkillName.AnimalTaming].Base : m.Skills[SkillName.AnimalTaming].Value) * 10);
+			int lore = (int)((useBaseSkill ? m.Skills[SkillName.AnimalLore].Base : m.Skills[SkillName.AnimalLore].Value) * 10);
+			int herding = (int)((useBaseSkill ? m.Skills[SkillName.Herding].Base : m.Skills[SkillName.Herding].Value) * 10);
+			int bonus = 0, chance = 700;
+
+			if (Core.ML)
+			{
+				int SkillBonus = taming - (int)(dMinTameSkill * 10);
+				int LoreBonus = lore - (int)(dMinTameSkill * 10);
+				int HerdingBonus = herding - (int)(dMinTameSkill * 10);
+
+				int SkillMod = 6, LoreMod = 6, HerdMod = 6;
+
+				if (SkillBonus < 0)
+					SkillMod = 28;
+				if (LoreBonus < 0)
+					LoreMod = 14;
+				if (HerdingBonus < 0)
+					HerdMod = 14;
+
+				SkillBonus *= SkillMod;
+				LoreBonus *= LoreMod;
+				HerdingBonus *= HerdMod;
+
+				bonus = (SkillBonus + LoreBonus) / 2;
+			}
+			else
+			{
+				int difficulty = (int)(dMinTameSkill * 10);
+				int weighted = ((taming * 4) + lore) / 5;
+				bonus = weighted - difficulty;
+
+				if (bonus <= 0)
+					bonus *= 14;
+				else
+					bonus *= 6;
+			}
+
+			chance += bonus;
+
+			if (chance >= 0 && chance < 200)
+				chance = 200;
+			else if (chance > 990)
+				chance = 990;
+
+			chance -= (MaxLoyalty - m_Loyalty) * 10;
+
+			return ((double)chance / 1000);
+		}
+
+
+		#region HerdControlChance
+
+		public virtual double GetHerdConntrolChance(Mobile m)
+		{
+			if (m_dMinTameSkill <= 29.1 || m_bSummoned || m.AccessLevel >= AccessLevel.GameMaster)
+				return 1.0;
+
+			double dMinTameSkill = m_dMinTameSkill;
+
+			if (dMinTameSkill > -24.9 && AnimalTaming.CheckMastery(m, this))
+				dMinTameSkill = -24.9;
+
+			int taming = (int)((m.Skills[SkillName.AnimalTaming].Value) * 10);
+			int lore = (int)((m.Skills[SkillName.AnimalLore].Value) * 10);
+			int herding = (int)((m.Skills[SkillName.Herding].Value)* 10);
+
+			taming = Math.Min(taming, 1000);
+			lore = Math.Min(lore, 1000);
+			int bonus = 0, chance = 700;
+
+			Console.Write("Taming: {0}", taming);
+			Console.Write("Lore: {0}", lore);
+			Console.Write("Herding: {0}", herding);
+
+
+			int difficulty = (int)(dMinTameSkill * 10);
+			int weighted = ((herding * 3) + taming + lore) / 5;
+			bonus = weighted - difficulty;
+
+			if (bonus <= 0)
+				bonus *= 14;
+			else
+				bonus *= 6;
+
+			chance += bonus;
+
+			if (chance >= 0 && chance < 200)
+				chance = 200;
+			else if (chance > 990)
+				chance = 990;
+
+			return ((double)chance / 1000);
+		}
+
+		#endregion
 
 		private static Type[] m_AnimateDeadTypes = new Type[]
 			{

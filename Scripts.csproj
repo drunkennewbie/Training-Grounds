@@ -74,11 +74,15 @@
     <Compile Include="Accounting\IPLimiter.cs" />
     <Compile Include="Added Systems\ChickenBattle\BattleChickenLizard.cs" />
     <Compile Include="Added Systems\ChickenBattle\ChickenCoop.cs" />
-    <Compile Include="Added Systems\ChickenBattle\ChickenLizard.cs" />
     <Compile Include="Added Systems\ChickenBattle\ChickenLizardEgg.cs" />
+    <Compile Include="Added Systems\ChickenBattle\ChickenCage.cs" />
     <Compile Include="Added Systems\ChickenBattle\Incubator.cs" />
     <Compile Include="Added Systems\ChickenBattle\ScaleCollar.cs" />
     <Compile Include="Added Systems\Creatures\BardableHorse.cs" />
+    <Compile Include="Added Systems\Creatures\CatHerder.cs" />
+    <Compile Include="Added Systems\HouseAddons\JewelryBox\JewelryBox.cs" />
+    <Compile Include="Added Systems\HouseAddons\JewelryBox\JewelryBoxFilter.cs" />
+    <Compile Include="Added Systems\HouseAddons\JewelryBox\JewerlyBoxGump.cs" />
     <Compile Include="Added Systems\Items\FireworksWand.cs" />
     <Compile Include="Added Systems\Items\HorseBardingDeed.cs" />
     <Compile Include="Added Systems\Creatures\Krumpus.cs" />
@@ -115,6 +119,9 @@
     <Compile Include="Added Systems\Quests\Botanist\BotanistGump.cs" />
     <Compile Include="Added Systems\Quests\Botanist\Items\DirtJar.cs" />
     <Compile Include="Added Systems\Quests\Botanist\Items\Worm.cs" />
+    <Compile Include="Added Systems\Quests\Chicken Biologist\Biologist.cs" />
+    <Compile Include="Added Systems\Quests\Chicken Biologist\BiologistGump.cs" />
+    <Compile Include="Added Systems\Quests\Chicken Biologist\Items\ReptileCata.cs" />
     <Compile Include="Added Systems\Quests\TestQuester\TestQuests.cs" />
     <Compile Include="Added Systems\Skills\Begging\Items\TrashPiles\MagnetiteOre.cs" />
     <Compile Include="Added Systems\Skills\Begging\Items\TrashPiles\MagnetiteStone.cs" />

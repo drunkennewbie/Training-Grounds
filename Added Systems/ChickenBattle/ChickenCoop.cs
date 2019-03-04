@@ -195,10 +195,10 @@ namespace Server.Items
 
 			protected override void OnTarget(Mobile from, object targeted)
 			{
-				if (targeted is ChickenLizard || targeted is Chicken || targeted is BattleChickenLizard)
+				if (targeted is Chicken || targeted is BattleChickenLizard)
 					m_Post.EndStable(from, (BaseCreature)targeted);
 				else if (targeted == from)
-					from.SendLocalizedMessage(502672); // HA HA HA! Sorry, I am not an inn.
+					from.SendLocalizedMessage(1112558); // You may only stable chickens in the chicken coop.
 				else
 					from.SendLocalizedMessage(1112558); // You may only stable chickens in the chicken coop.
 			}

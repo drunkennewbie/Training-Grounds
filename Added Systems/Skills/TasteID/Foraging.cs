@@ -142,9 +142,9 @@ namespace Server.Engines.Harvest
 			    new MutateEntry(  80.0,  80.0,  4080.0, true, true, false,  true, false, typeof( Worm )), //Worm - Dirt
 			    new MutateEntry(  50.0,  50.0,  200.0,  true, false, false, false, false, typeof( Carrot )), //Carrot - Grass
 			    new MutateEntry(  50.0,  50.0,  200.0,  true, false, false, false, false, typeof( Onion )), //Onion - Grass
-				new MutateEntry(  80.0,  80.0,  4080.0, false, false, true, false, false, typeof( Sand ) ), //Sand - Sand
+				new MutateEntry(  80.0,  80.0,  200.0, false, false, true, false, false, typeof( Sand ) ), //Sand - Sand
 				new MutateEntry(  80.0,  80.0,  4080.0, true, true, true, true, false, typeof( RustyKatana ), typeof( RustyHatchet ), typeof( RustyDagger )), //Rusty Weapons
-				new MutateEntry(  80.0,  80.0,  4080.0, false, false, false, false, true, typeof( Snowball ) ), //Snowball - Snow
+				new MutateEntry(  80.0,  80.0,  200.0, false, false, false, false, true, typeof( Snowball ) ), //Snowball - Snow
 				new MutateEntry(   0.0, 200.0,  -200.0, true, true, true, true, true, new Type[1]{ null } ) //Nothing - All
 			};
 
@@ -409,7 +409,6 @@ namespace Server.Engines.Harvest
 		public override void OnHarvestFinished(Mobile from, Item tool, HarvestDefinition def, HarvestVein vein, HarvestBank bank, HarvestResource resource, object harvested)
 		{
 			base.OnHarvestFinished(from, tool, def, vein, bank, resource, harvested);
-			from.RevealingAction();
 		}
 
 		public override object GetLock(Mobile from, Item tool, HarvestDefinition def, object toHarvest)
