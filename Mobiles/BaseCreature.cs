@@ -2464,6 +2464,11 @@ namespace Server.Mobiles
 				case AIType.AI_Thief:
 					m_AI = new ThiefAI(this);
 					break;
+				#region New AI
+				case AIType.AI_Stealth:
+					m_AI = new StealthAI(this);
+					break;
+					#endregion
 			}
 		}
 
@@ -3652,6 +3657,37 @@ namespace Server.Mobiles
 			m_NextReacquireTime = Core.TickCount;
 		}
 
+		#region Stealth
+
+		public virtual bool CanStealth { get { return false; } }
+
+		protected override bool OnMove(Direction d)
+		{
+
+			if (Hidden) //Hidden, let's try stealth
+			{
+				if (!Mounted && Skills.Stealth.Value >= 25.0 && CanStealth)
+				{
+					bool running = (d & Direction.Running) != 0;
+
+					if (running)
+					{
+						if ((AllowedStealthSteps -= 2) <= 0)
+							RevealingAction();
+					}
+					else if (AllowedStealthSteps-- <= 0)
+					{
+						Server.SkillHandlers.Stealth.OnUse(this);
+					}
+				}
+				else
+				{
+					RevealingAction();
+				}
+			}
+			return true;
+		}
+		#endregion
 		public override void OnMovement( Mobile m, Point3D oldLocation )
 		{
 			if( AcquireOnApproach && ( !Controlled && !Summoned ) && FightMode != FightMode.Aggressor )

@@ -51,3 +51,12 @@ General Testing Grounds of Ideas.
 	- Requires 10 Zoogi Fungi and 2 Scales (Any  type)
 - Removed Revealing Action from Foraging
 - Added Jewelry Box for future reference
+
+### March 5, 2019
+-Added Drow Creatures
+	-Based off Savage 
+-Added Stealth AI
+-Added Drow Bow
+	-Composite Bow version of Savage Spear
+-Added Drow Circlet
+	-Drops from Female Drow Only, Requires 5 Parts to build

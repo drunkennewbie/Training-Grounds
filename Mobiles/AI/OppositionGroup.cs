@@ -68,7 +68,7 @@ namespace Server
 			get{ return m_TerathansAndOphidians; }
 		}
 
-		private static OppositionGroup m_SavagesAndOrcs = new OppositionGroup( new Type[][]
+		private static OppositionGroup m_SavagesAndOrcs = new OppositionGroup(new Type[][]
 			{
 				new Type[]
 				{
@@ -87,13 +87,38 @@ namespace Server
 					typeof( SavageRidgeback ),
 					typeof( SavageShaman )
 				}
-			} );
+			});
 
 		public static OppositionGroup SavagesAndOrcs
 		{
-			get{ return m_SavagesAndOrcs; }
+			get { return m_SavagesAndOrcs; }
 		}
+
 		
+		private static OppositionGroup m_DrowAndPaladins = new OppositionGroup( new Type[][]
+			{
+				new Type[]
+				{
+					typeof( Drow ),
+					//typeof( DrowPriestess ),
+					//typeof( DrowArcher ),
+					
+				},
+				new Type[]
+				{
+//					typeof( Savage ),
+//					typeof( SavageRider ),
+//					typeof( SavageRidgeback ),
+//					typeof( SavageShaman )
+				}
+			} );
+
+		public static OppositionGroup DrowAndPaladins
+		{
+			get { return m_DrowAndPaladins; }
+		}
+
+
 		private static OppositionGroup m_FeyAndUndead = new OppositionGroup( new Type[][]
 			{
 				new Type[]

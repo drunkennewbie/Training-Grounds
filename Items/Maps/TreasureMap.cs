@@ -51,7 +51,7 @@ namespace Server.Items
 			new Type[]{ typeof( AncientWyrm ), typeof( Balron ), typeof( BloodElemental ), typeof( PoisonElemental ), typeof( Titan ) }
 		};
 
-		public const double LootChance = 0.01; // 1% chance to appear as loot
+		public const double LootChance = 0.01; // 1% chance to appear as loot ((.01 default)
 
 		public static Point2D GetRandomLocation()
 		{
