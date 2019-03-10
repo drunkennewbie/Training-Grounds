@@ -9,12 +9,17 @@ using Server.Network;
 
 namespace Server.Items
 {
-	public class ForagingKit : Item
+	public class ForagingKit : BaseHarvestTool
 	{
+
+		public override HarvestSystem HarvestSystem { get { return Foraging.System; } }
+
 		[Constructable]
 		public ForagingKit() : base(0x992D)
 		{
+			Name = "Foraging Kit";
 			Weight = 5.0;
+
 		}
 
 		public override void OnDoubleClick(Mobile from)

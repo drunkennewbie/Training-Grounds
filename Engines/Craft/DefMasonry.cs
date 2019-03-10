@@ -111,8 +111,9 @@ namespace Server.Engines.Craft
 			// Decorations
 			AddCraft( typeof( Vase ), 1044501, 1022888, 52.5, 102.5, typeof( Granite ), 1044514, 1, 1044513 );
 			AddCraft( typeof( LargeVase ), 1044501, 1022887, 52.5, 102.5, typeof( Granite ), 1044514, 3, 1044513 );
+			AddCraft(typeof(CremationUrn), 1044501, "Funeral Urn", 52.5, 102.5, typeof(Granite), 1044514, 3, 1044513);
 
-			if( Core.SE )
+			if ( Core.SE )
 			{
 				int index = AddCraft( typeof( SmallUrn ), 1044501, 1029244, 82.0, 132.0, typeof( Granite ), 1044514, 3, 1044513 );
 				SetNeededExpansion( index, Expansion.SE );

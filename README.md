@@ -53,10 +53,18 @@ General Testing Grounds of Ideas.
 - Added Jewelry Box for future reference
 
 ### March 5, 2019
--Added Drow Creatures
-	-Based off Savage 
--Added Stealth AI
--Added Drow Bow
-	-Composite Bow version of Savage Spear
--Added Drow Circlet
-	-Drops from Female Drow Only, Requires 5 Parts to build
+- Added Drow Creatures
+	- Based off Savage 
+- Added Stealth AI
+- Added Drow Bow
+	- Composite Bow version of Savage Spear
+- Added Drow Circlet
+	- Drops from Female Drow Only, Requires 5 Parts to build.
+	
+### March 9, 2019
+- Cremation
+	- Obtain Cremation Kit and use it on a Human Corpse
+		- Turns Corpse to Bones.
+	- Use Filled Cremation Kit and a Funeral Urn on a Cremator Obtained Filled Funeral Urn.
+		- "A Filled Funeral Urn with <NAME>'s Ashes"
+- Tweeked Foraging Kit

@@ -1270,17 +1270,17 @@ namespace Server.Items
 			{
 				from.SendLocalizedMessage( 500485 ); // You see nothing useful to carve from the corpse.
 			}
-			else if ( ((Body)Amount).IsHuman && ItemID == 0x2006 )
+			else if (((Body)Amount).IsHuman && ItemID == 0x2006 )
 			{
-				new Blood( 0x122D ).MoveToWorld( Location, Map );
+				new Blood(0x122D).MoveToWorld(Location, Map);
+				new Torso().MoveToWorld(Location, Map);
+				new LeftLeg().MoveToWorld(Location, Map);
+				new LeftArm().MoveToWorld(Location, Map);
+				new RightLeg().MoveToWorld(Location, Map);
+				new RightArm().MoveToWorld(Location, Map);
+				new Head(dead.Name).MoveToWorld(Location, Map);
 
-				new Torso().MoveToWorld( Location, Map );
-				new LeftLeg().MoveToWorld( Location, Map );
-				new LeftArm().MoveToWorld( Location, Map );
-				new RightLeg().MoveToWorld( Location, Map );
-				new RightArm().MoveToWorld( Location, Map );
-				new Head( dead.Name ).MoveToWorld( Location, Map );
-
+				
 				SetFlag( CorpseFlag.Carved, true );
 
 				ProcessDelta();
@@ -1301,5 +1301,35 @@ namespace Server.Items
 				from.SendLocalizedMessage( 500485 ); // You see nothing useful to carve from the corpse.
 			}
 		}
+
+		#region Cremation
+		public void Cremation(Mobile from, Item item)
+		{
+			Mobile dead = m_Owner;
+
+			if (GetFlag(CorpseFlag.Carved) || dead == null)
+			{
+				from.SendLocalizedMessage(500485); // You see nothing useful to carve from the corpse.
+			}
+			else if (((Body)Amount).IsHuman && ItemID == 0x2006)
+			{
+				
+				SetFlag(CorpseFlag.Carved, true);
+
+				ProcessDelta();
+				SendRemovePacket();
+				ItemID = Utility.Random(0xECA, 9); // bone graphic
+				Hue = 0;
+				ProcessDelta();
+
+				if (IsCriminalAction(from))
+					from.CriminalAction(true);
+			}
+			else
+			{
+				from.SendMessage("That isn't a Human corpse, Taxidermy Kit will be better");
+			}
+		}
+		#endregion
 	}
 }
