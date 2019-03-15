@@ -101,4 +101,5 @@ namespace Server.Gumps
 			Add( new RewardOption( id, cliloc ) );
 		}
 	}
+
 }

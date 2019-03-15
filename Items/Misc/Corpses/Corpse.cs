@@ -623,6 +623,17 @@ namespace Server.Items
 			BeginDecay( m_DefaultDecayTime );
 
 			DevourCorpse();
+
+			#region SummonCorpseStone
+			if (owner is PlayerMobile)
+			{
+				if (PlayerCorpses == null)
+					PlayerCorpses = new Dictionary<Corpse, int>();
+
+				PlayerCorpses[this] = 0;
+			}
+			#endregion
+
 		}
 
 		public Corpse( Serial serial ) : base( serial )
@@ -852,6 +863,15 @@ namespace Server.Items
 					break;
 				}
 			}
+			#region Undertaker Stone
+			if (m_Owner is PlayerMobile)
+			{
+				if (PlayerCorpses == null)
+					PlayerCorpses = new Dictionary<Corpse, int>();
+
+				PlayerCorpses[this] = 0;
+			}
+			#endregion
 		}
 
 		public bool DevourCorpse()
@@ -1331,5 +1351,21 @@ namespace Server.Items
 			}
 		}
 		#endregion
+
+		#region Undertaker Stone
+		public override void Delete()
+		{
+			base.Delete();
+
+			if (PlayerCorpses != null && PlayerCorpses.Remove(this))
+			{
+				if (PlayerCorpses.Count == 0)
+					PlayerCorpses = null;
+			}
+		}
+
+		public static Dictionary<Corpse, int> PlayerCorpses { get; set; }
+		#endregion
+
 	}
 }

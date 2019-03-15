@@ -68,3 +68,8 @@ General Testing Grounds of Ideas.
 	- Use Filled Cremation Kit and a Funeral Urn on a Cremator Obtained Filled Funeral Urn.
 		- "A Filled Funeral Urn with <NAME>'s Ashes"
 - Tweeked Foraging Kit
+
+### March 14, 2019
+- Corpse Bell
+	- Summons all of the players corpses within 30 squares of them
+- Started to work on Repair Bench 

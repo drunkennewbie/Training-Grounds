@@ -1,69 +1,71 @@
 using System;
-using Server;
-using Server.Targeting;
 using Server.Engines.Craft;
 using Server.Mobiles;
 using Server.Regions;
 
 namespace Server.Items
 {
-	public class RepairDeed : Item
+	public enum RepairSkillType
 	{
-		private class RepairSkillInfo
+		Smithing,
+		Tailoring,
+		Tinkering,
+		Carpentry,
+		Fletching
+	}
+
+
+	public class RepairSkillInfo
+	{
+		private CraftSystem m_System;
+		private Type[] m_NearbyTypes;
+		private TextDefinition m_NotNearbyMessage, m_Name;
+
+		public TextDefinition NotNearbyMessage { get { return m_NotNearbyMessage; } }
+		public TextDefinition Name { get { return m_Name; } }
+
+
+		public CraftSystem System { get { return m_System; } }
+		public Type[] NearbyTypes { get { return m_NearbyTypes; } }
+
+		public RepairSkillInfo(CraftSystem system, Type[] nearbyTypes, TextDefinition notNearbyMessage, TextDefinition name)
 		{
-			private CraftSystem m_System;
-			private Type[] m_NearbyTypes;
-			private TextDefinition m_NotNearbyMessage, m_Name;
+			m_System = system;
+			m_NearbyTypes = nearbyTypes;
+			m_NotNearbyMessage = notNearbyMessage;
+			m_Name = name;
+		}
 
-			public TextDefinition NotNearbyMessage{	get { return m_NotNearbyMessage; } }
-			public TextDefinition Name { get { return m_Name; } }
+		public RepairSkillInfo(CraftSystem system, Type nearbyType, TextDefinition notNearbyMessage, TextDefinition name)
+			: this(system, new Type[] { nearbyType }, notNearbyMessage, name)
+		{
+		}
 
-
-			public CraftSystem System { get { return m_System; } }
-			public Type[] NearbyTypes { get { return m_NearbyTypes; } }
-
-			public RepairSkillInfo( CraftSystem system, Type[] nearbyTypes, TextDefinition notNearbyMessage, TextDefinition name )
+		public static RepairSkillInfo[] Table { get { return m_Table; } }
+		private static RepairSkillInfo[] m_Table = new RepairSkillInfo[]
 			{
-				m_System = system;
-				m_NearbyTypes = nearbyTypes;
-				m_NotNearbyMessage = notNearbyMessage;
-				m_Name = name;
-			}
-
-			public RepairSkillInfo( CraftSystem system, Type nearbyType, TextDefinition notNearbyMessage, TextDefinition name )
-				: this( system, new Type[] { nearbyType }, notNearbyMessage, name )
-			{
-			}
-
-			public static RepairSkillInfo[] Table { get { return m_Table; } }
-			private static RepairSkillInfo[] m_Table = new RepairSkillInfo[]
-				{
 					new RepairSkillInfo( DefBlacksmithy.CraftSystem, typeof( Blacksmith ), 1047013, 1023015 ),
 					new RepairSkillInfo( DefTailoring.CraftSystem, typeof( Tailor ), 1061132, 1022981 ),
 					new RepairSkillInfo( DefTinkering.CraftSystem, typeof( Tinker ), 1061166, 1022983 ),
 					new RepairSkillInfo( DefCarpentry.CraftSystem, typeof( Carpenter ), 1061135, 1060774 ),
 					new RepairSkillInfo( DefBowFletching.CraftSystem, typeof( Bowyer ), 1061134, 1023005 )
-				};
+			};
 
-			public static RepairSkillInfo GetInfo( RepairSkillType type )
-			{
-				int v = (int)type;
-
-				if( v < 0 || v >= m_Table.Length )
-					v = 0;
-
-				return m_Table[v];
-			}
-		}
-		public enum RepairSkillType
+		public static RepairSkillInfo GetInfo(RepairSkillType type)
 		{
-			Smithing,
-			Tailoring,
-			Tinkering,
-			Carpentry,
-			Fletching
-		}
+			int v = (int)type;
 
+			if (v < 0 || v >= m_Table.Length)
+				v = 0;
+
+			return m_Table[v];
+		}
+	}
+
+
+	public class RepairDeed : Item
+	{
+		
 		public override bool DisplayLootType { get { return false; } }
 
 		private RepairSkillType m_Skill; 

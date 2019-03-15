@@ -89,6 +89,7 @@
     <Compile Include="Added Systems\HouseAddons\JewelryBox\JewelryBox.cs" />
     <Compile Include="Added Systems\HouseAddons\JewelryBox\JewelryBoxFilter.cs" />
     <Compile Include="Added Systems\HouseAddons\JewelryBox\JewerlyBoxGump.cs" />
+    <Compile Include="Added Systems\HouseAddons\RepairBench2.cs" />
     <Compile Include="Added Systems\Items\Davies\DaviesLocker.cs" />
     <Compile Include="Added Systems\Items\Davies\DaviesLockerDeed.cs" />
     <Compile Include="Added Systems\Items\Davies\DaviesLockerGump.cs" />
@@ -99,8 +100,9 @@
     <Compile Include="Added Systems\Items\FireworksWand.cs" />
     <Compile Include="Added Systems\Items\HorseBardingDeed.cs" />
     <Compile Include="Added Systems\Creatures\Krumpus.cs" />
-    <Compile Include="Added Systems\Items\Urn\Cremator.cs" />
-    <Compile Include="Added Systems\Items\Urn\CremateContainers.cs" />
+    <Compile Include="Added Systems\Items\Cremation\Cremator.cs" />
+    <Compile Include="Added Systems\Items\Cremation\CremateContainers.cs" />
+    <Compile Include="Added Systems\Items\Undertaker.cs" />
     <Compile Include="Added Systems\Plants\Dragonfruit.cs" />
     <Compile Include="Added Systems\Plants\FertileDirtGump.cs" />
     <Compile Include="Added Systems\Plants\RaisedGarden.cs" />

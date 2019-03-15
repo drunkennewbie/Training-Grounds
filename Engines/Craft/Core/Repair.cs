@@ -24,11 +24,20 @@ namespace Server.Engines.Craft
 			from.SendLocalizedMessage( 1044276 ); // Target an item to repair.
 		}
 
+		#region RepairBench
+		public static void Do(Mobile from, CraftSystem craftSystem, RepairBench rb)
+		{
+			from.Target = new InternalTarget(craftSystem, rb);
+			from.SendLocalizedMessage(500436); // Select item to repair.
+		}
+		#endregion
+
 		private class InternalTarget : Target
 		{
 			private CraftSystem m_CraftSystem;
 			private BaseTool m_Tool;
 			private RepairDeed m_Deed;
+			private readonly RepairBench m_RepairBench;
 
 			public InternalTarget( CraftSystem craftSystem, BaseTool tool ) :  base ( 2, false, TargetFlags.None )
 			{
@@ -41,7 +50,14 @@ namespace Server.Engines.Craft
 				m_CraftSystem = craftSystem;
 				m_Deed = deed;
 			}
-
+			#region RepairBench
+			public InternalTarget(CraftSystem craftSystem, RepairBench rb)
+			   : base(2, false, TargetFlags.None)
+			{
+				m_CraftSystem = craftSystem;
+				m_RepairBench = rb;
+			}
+			#endregion
 			private static void EndGolemRepair( object state )
 			{
 				((Mobile)state).EndAction( typeof( Golem ) );
