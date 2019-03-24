@@ -21,7 +21,7 @@ namespace Server.Items
 		int MaxArcaneCharges{ get; set; }
 	}
 
-	public abstract class BaseClothing : Item, IDyable, IScissorable, IFactionItem, ICraftable, IWearableDurability
+	public abstract class BaseClothing : Item, IDyable, IScissorable, IFactionItem, ICraftable, IWearableDurability, ISetItem
 	{
 		#region Factions
 		private FactionItem m_FactionState;
@@ -344,6 +344,20 @@ namespace Server.Items
 				if ( Core.AOS )
 					m_AosSkillBonuses.AddTo( mob );
 
+				#region Set Items
+				if (IsSetItem)
+				{
+					m_SetEquipped = SetHelper.FullSetEquipped(mob, SetID, Pieces);
+
+					if (m_SetEquipped)
+					{
+						m_LastEquipped = true;
+						SetHelper.AddSetBonus(mob, SetID);
+					}
+				}
+				#endregion
+
+
 				AddStatBonuses( mob );
 				mob.CheckStatTimers();
 			}
@@ -359,6 +373,13 @@ namespace Server.Items
 			{
 				if ( Core.AOS )
 					m_AosSkillBonuses.Remove();
+
+
+				#region Set Items
+				if (IsSetItem && m_SetEquipped)
+					SetHelper.RemoveSetBonus(mob, SetID, this);
+				#endregion
+
 
 				string modName = this.Serial.ToString();
 
@@ -448,6 +469,12 @@ namespace Server.Items
 			m_AosClothingAttributes = new AosArmorAttributes( this );
 			m_AosSkillBonuses = new AosSkillBonuses( this );
 			m_AosResistances = new AosElementAttributes( this );
+
+			#region Set Items
+			m_SetAttributes = new AosAttributes(this);
+			m_SetSkillBonuses = new AosSkillBonuses(this);
+
+			#endregion
 		}
 
 		public override void OnAfterDuped( Item newItem )
@@ -568,7 +595,28 @@ namespace Server.Items
 			if ( m_Quality == ClothingQuality.Exceptional )
 				list.Add( 1060636 ); // exceptional
 
-			if( RequiredRace == Race.Elf )
+			#region Set Items
+			if (IsSetItem)
+			{
+				if (MixedSet)
+					list.Add(1073491, Pieces.ToString()); // Part of a Weapon/Armor Set (~1_val~ pieces)
+				else
+					list.Add(1072376, Pieces.ToString()); // Part of an Armor Set (~1_val~ pieces)
+
+				if (m_SetEquipped)
+				{
+					if (MixedSet)
+						list.Add(1073492); // Full Weapon/Armor Set Present
+					else
+						list.Add(1072377); // Full Armor Set Present
+
+					GetSetProperties(list);
+				}
+			}
+			#endregion
+
+
+			if ( RequiredRace == Race.Elf )
 				list.Add( 1075086 ); // Elves Only
 
 			if ( m_AosSkillBonuses != null )
@@ -670,6 +718,21 @@ namespace Server.Items
 
 			if ( m_HitPoints >= 0 && m_MaxHitPoints > 0 )
 				list.Add( 1060639, "{0}\t{1}", m_HitPoints, m_MaxHitPoints ); // durability ~1_val~ / ~2_val~
+
+
+			#region Set Items
+			if (IsSetItem && !m_SetEquipped)
+			{
+				list.Add(1072378); // <br>Only when full set is present:				
+				GetSetProperties(list);
+			}
+			#endregion
+
+		}
+
+		public virtual void GetSetProperties(ObjectPropertyList list)
+		{
+			SetHelper.GetSetProperties(list, this);
 		}
 
 		public override void OnSingleClick( Mobile from )
@@ -746,25 +809,83 @@ namespace Server.Items
 			StrReq				= 0x00000400
 		}
 
+
+		#region Set Items
+		private static void SetSaveFlag(ref SetFlag flags, SetFlag toSet, bool setIf)
+		{
+			if (setIf)
+				flags |= toSet;
+		}
+
+		private static bool GetSaveFlag(SetFlag flags, SetFlag toGet)
+		{
+			return ((flags & toGet) != 0);
+		}
+
+		[Flags]
+		private enum SetFlag
+		{
+			None = 0x00000000,
+			Attributes = 0x00000001,
+			ArmorAttributes = 0x00000002,
+			SkillBonuses = 0x00000004,
+			SetHue = 0x00000008,
+			LastEquipped = 0x00000010,
+			SetEquipped = 0x0000020,
+		}
+		#endregion
+
+
 		public override void Serialize( GenericWriter writer )
 		{
 			base.Serialize( writer );
 
-			writer.Write( (int) 5 ); // version
+			writer.Write( (int) 6 ); // version
+
+			#region Set Items
+
+			SetFlag sflags = SetFlag.None;
+
+			SetSaveFlag(ref sflags, SetFlag.Attributes, !m_SetAttributes.IsEmpty);
+			SetSaveFlag(ref sflags, SetFlag.SkillBonuses, !m_SetSkillBonuses.IsEmpty);
+			SetSaveFlag(ref sflags, SetFlag.SetHue, m_SetHue != 0);
+			SetSaveFlag(ref sflags, SetFlag.LastEquipped, m_LastEquipped);
+			SetSaveFlag(ref sflags, SetFlag.SetEquipped, m_SetEquipped);
+
+			writer.WriteEncodedInt((int)sflags);
+
+			if (GetSaveFlag(sflags, SetFlag.Attributes))
+				m_SetAttributes.Serialize(writer);
+
+			if (GetSaveFlag(sflags, SetFlag.SkillBonuses))
+				m_SetSkillBonuses.Serialize(writer);
+
+			if (GetSaveFlag(sflags, SetFlag.SetHue))
+				writer.WriteEncodedInt((int)m_SetHue);
+
+			if (GetSaveFlag(sflags, SetFlag.LastEquipped))
+				writer.Write((bool)m_LastEquipped);
+
+			if (GetSaveFlag(sflags, SetFlag.SetEquipped))
+				writer.Write((bool)m_SetEquipped);
+
+
+			#endregion
 
 			SaveFlag flags = SaveFlag.None;
 
-			SetSaveFlag( ref flags, SaveFlag.Resource,			m_Resource != DefaultResource );
-			SetSaveFlag( ref flags, SaveFlag.Attributes,		!m_AosAttributes.IsEmpty );
-			SetSaveFlag( ref flags, SaveFlag.ClothingAttributes,!m_AosClothingAttributes.IsEmpty );
-			SetSaveFlag( ref flags, SaveFlag.SkillBonuses,		!m_AosSkillBonuses.IsEmpty );
-			SetSaveFlag( ref flags, SaveFlag.Resistances,		!m_AosResistances.IsEmpty );
-			SetSaveFlag( ref flags, SaveFlag.MaxHitPoints,		m_MaxHitPoints != 0 );
-			SetSaveFlag( ref flags, SaveFlag.HitPoints,			m_HitPoints != 0 );
-			SetSaveFlag( ref flags, SaveFlag.PlayerConstructed,	m_PlayerConstructed != false );
-			SetSaveFlag( ref flags, SaveFlag.Crafter,			m_Crafter != null );
-			SetSaveFlag( ref flags, SaveFlag.Quality,			m_Quality != ClothingQuality.Regular );
-			SetSaveFlag( ref flags, SaveFlag.StrReq,			m_StrReq != -1 );
+			SetSaveFlag(ref flags, SaveFlag.Resource, m_Resource != DefaultResource);
+			SetSaveFlag(ref flags, SaveFlag.Attributes, !m_AosAttributes.IsEmpty);
+			SetSaveFlag(ref flags, SaveFlag.ClothingAttributes, !m_AosClothingAttributes.IsEmpty);
+			SetSaveFlag(ref flags, SaveFlag.SkillBonuses, !m_AosSkillBonuses.IsEmpty);
+			SetSaveFlag(ref flags, SaveFlag.Resistances, !m_AosResistances.IsEmpty);
+			SetSaveFlag(ref flags, SaveFlag.MaxHitPoints, m_MaxHitPoints != 0);
+			SetSaveFlag(ref flags, SaveFlag.HitPoints, m_HitPoints != 0);
+			SetSaveFlag(ref flags, SaveFlag.PlayerConstructed, m_PlayerConstructed != false);
+			SetSaveFlag(ref flags, SaveFlag.Crafter, m_Crafter != null);
+			SetSaveFlag(ref flags, SaveFlag.Quality, m_Quality != ClothingQuality.Regular);
+			SetSaveFlag(ref flags, SaveFlag.StrReq, m_StrReq != -1);
+
 
 			writer.WriteEncodedInt( (int) flags );
 
@@ -797,6 +918,10 @@ namespace Server.Items
 
 			if ( GetSaveFlag( flags, SaveFlag.StrReq ) )
 				writer.WriteEncodedInt( (int) m_StrReq );
+
+			
+
+
 		}
 
 		public override void Deserialize( GenericReader reader )
@@ -807,6 +932,33 @@ namespace Server.Items
 
 			switch ( version )
 			{
+				
+				case 6:
+				{
+						#region Set Items
+						SetFlag sflags = (SetFlag)reader.ReadEncodedInt();
+
+						if (GetSaveFlag(sflags, SetFlag.Attributes))
+							m_SetAttributes = new AosAttributes(this, reader);
+						else
+							m_SetAttributes = new AosAttributes(this);
+
+						if (GetSaveFlag(sflags, SetFlag.SkillBonuses))
+							m_SetSkillBonuses = new AosSkillBonuses(this, reader);
+						else
+							m_SetSkillBonuses = new AosSkillBonuses(this);
+
+						if (GetSaveFlag(sflags, SetFlag.SetHue))
+							m_SetHue = reader.ReadEncodedInt();
+
+						if (GetSaveFlag(sflags, SetFlag.LastEquipped))
+							m_LastEquipped = reader.ReadBool();
+
+						if (GetSaveFlag(sflags, SetFlag.SetEquipped))
+							m_SetEquipped = reader.ReadBool();
+						#endregion
+						goto case 5;
+				}
 				case 5:
 				{
 					SaveFlag flags = (SaveFlag)reader.ReadEncodedInt();
@@ -893,6 +1045,14 @@ namespace Server.Items
 					break;
 				}
 			}
+
+			#region Sets Items
+			if (m_SetAttributes == null)
+				m_SetAttributes = new AosAttributes(this);
+
+			if (m_SetSkillBonuses == null)
+				m_SetSkillBonuses = new AosSkillBonuses(this);
+			#endregion
 
 			if ( version < 2 )
 				m_PlayerConstructed = true; // we don't know, so, assume it's crafted
@@ -1034,6 +1194,47 @@ namespace Server.Items
 
 			return quality;
 		}
+
+		#endregion
+
+		#region Set Items
+		public override bool OnDragLift(Mobile from)
+		{
+			if (Parent is Mobile && from == Parent)
+			{
+				if (IsSetItem && m_SetEquipped)
+					SetHelper.RemoveSetBonus(from, SetID, this);
+			}
+
+			return base.OnDragLift(from);
+		}
+		public virtual bool MixedSet { get { return false; }}
+		public virtual SetItem SetID { get { return SetItem.None; }}
+		public virtual int Pieces { get { return 0;	}}
+		public bool IsSetItem {	get	{ return SetID == SetItem.None ? false : true; }}
+
+
+		private int m_SetHue;
+		private bool m_SetEquipped;
+		private bool m_LastEquipped;
+
+		[CommandProperty(AccessLevel.GameMaster)]
+		public int SetHue { get	{ return m_SetHue; }
+			set { m_SetHue = value; InvalidateProperties();	}}
+
+		public bool SetEquipped	{ get { return m_SetEquipped; }	set	{	m_SetEquipped = value; }}
+
+		public bool LastEquipped { get { return m_LastEquipped;	} set {	m_LastEquipped = value;	}}
+
+		private AosAttributes m_SetAttributes;
+		private AosSkillBonuses m_SetSkillBonuses;
+
+		public AosAttributes SetAttributes { get { return m_SetAttributes;	} set {	}}
+
+		[CommandProperty(AccessLevel.GameMaster)]
+		public AosSkillBonuses SetSkillBonuses { get { return m_SetSkillBonuses; } set {}}
+
+
 
 		#endregion
 	}

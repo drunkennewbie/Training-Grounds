@@ -5,13 +5,13 @@ using Server.Gumps;
 using Server.Spells;
 using Server.Spells.Fifth;
 using Server.Spells.Seventh;
-using Server.Spells.Necromancy;
 using Server.Mobiles;
 using Server.Network;
 using Server.SkillHandlers;
 
 namespace Server.Items
 {
+		
 	public class DisguiseKit : Item
 	{
 		public override int LabelNumber{ get{ return 1041078; } } // a disguise kit
@@ -103,6 +103,7 @@ namespace Server.Items
 		private Mobile m_From;
 		private DisguiseKit m_Kit;
 		private bool m_Used;
+		
 
 		public DisguiseGump( Mobile from, DisguiseKit kit, bool startAtHair, bool used ) : base( 50, 50 )
 		{
@@ -183,7 +184,7 @@ namespace Server.Items
 
 				return;
 			}
-
+					
 			int[] switches = info.Switches;
 
 			if ( switches.Length == 0 )
@@ -192,7 +193,7 @@ namespace Server.Items
 			int switched = switches[0];
 			int type = switched % 2;
 			int index = switched / 2;
-
+			
 			bool hair = ( type == 0 );
 
 			DisguiseEntry[] entries = ( hair ? m_HairEntries : m_BeardEntries );
@@ -216,10 +217,14 @@ namespace Server.Items
 				{
 					PlayerMobile pm = (PlayerMobile)m_From;
 
-					if ( hair )
-						pm.SetHairMods( entry.m_ItemID, -2 );
+					if (hair)
+					{
+						pm.SetHairMods(entry.m_ItemID, -2);
+						pm.HairHue = Utility.RandomHairHue();
+					}
 					else
-						pm.SetHairMods( -2, entry.m_ItemID );
+						pm.SetHairMods(-2, entry.m_ItemID);
+
 				}
 
 				m_From.SendGump( new DisguiseGump( m_From, m_Kit, hair, true ) );
@@ -275,7 +280,7 @@ namespace Server.Items
 			}
 		}
 	}
-	
+
 	public class DisguiseTimers
 	{
 		public static void Initialize()
@@ -297,9 +302,10 @@ namespace Server.Items
 			{
 				m_Player.NameMod = null;
 
-				if ( m_Player is PlayerMobile )
-					((PlayerMobile)m_Player).SetHairMods( -1, -1 );
-			
+				if (m_Player is PlayerMobile)
+				{
+					((PlayerMobile)m_Player).SetHairMods(-1, -1);
+				}
 				DisguiseTimers.RemoveTimer( m_Player );
 			}
 		}

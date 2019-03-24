@@ -130,7 +130,7 @@ namespace Server.SkillHandlers
 						{
 							DateTime now = DateTime.UtcNow;
 							BaseVendor targvend = targ as BaseVendor; //Is Target Vendor?
-							Console.WriteLine(targvend.GeneralNextBegging);
+						//	Console.WriteLine(targvend.GeneralNextBegging);
 							if (targvend.NextBegging > now) //Vendor be used
 							{
 								from.SendLocalizedMessage(500404); // They seem unwilling to give you any money.
@@ -138,7 +138,7 @@ namespace Server.SkillHandlers
 							}
 							else
 							{
-								Console.WriteLine(targvend.GeneralNextBegging);
+						//		Console.WriteLine(targvend.GeneralNextBegging);
 								targvend.NextBegging = now + TimeSpan.FromMinutes(Utility.RandomMinMax(60, 90)); //Set Vendor Timer 60-90 minutes (Change for Balance)
 							}
 						}
@@ -146,7 +146,7 @@ namespace Server.SkillHandlers
 						{
 							DateTime now = DateTime.UtcNow;
 							BaseCreature targcreat = targ as BaseCreature;
-							Console.WriteLine(targcreat.GeneralNextBegging);
+						//	Console.WriteLine(targcreat.GeneralNextBegging);
 							if (targcreat.GeneralNextBegging > now) //Vendor be used
 							{
 								from.SendLocalizedMessage(500404); // They seem unwilling to give you any money.
@@ -154,7 +154,7 @@ namespace Server.SkillHandlers
 							}
 							else
 							{
-								Console.WriteLine(targcreat.GeneralNextBegging);
+						//		Console.WriteLine(targcreat.GeneralNextBegging);
 								targcreat.GeneralNextBegging = now + TimeSpan.FromMinutes(Utility.RandomMinMax(5, 10)); //Set Vendor Timer 60-90 minutes (Change for Balance)
 							}
 						}
@@ -205,7 +205,7 @@ namespace Server.SkillHandlers
 					bool savage = IsSavage(m_Target);
 
 					var badKarmaChance = 0.5 - ((double)m_From.Karma / 8570); //Lower your Karma Less chance you get
-					var goodKarmaChance = 0.5 + ((double)m_From.Karma / 8570.0); //Higher Karma less chance for Monsters
+					var goodKarmaChance = 0.5 + ((double)m_From.Karma / 8570); //Higher Karma less chance for Monsters
 
 					m_From.NextSkillTime = Core.TickCount + 10000; //Set next skill use 10 seconds
 					if (!orcs && !savage && m_From.Karma < 0 && badKarmaChance > Utility.RandomDouble())
@@ -222,7 +222,7 @@ namespace Server.SkillHandlers
 							m_From.SendMessage("You seem to notable to beg");
 						else
 						{
-							Console.WriteLine("Orc Begged");
+							//Console.WriteLine("Orc Begged");
 							if (m_From.CheckTargetSkill(SkillName.Begging, m_Target, 80, 100)) //Need 80+ Skill to Attempt to Beg Orc
 							{
 								int begchance = Utility.Random(100);//Lets see if you have bad accident
@@ -254,9 +254,9 @@ namespace Server.SkillHandlers
 							}
 						}
 					}
-					else if (savage == true)
+					else if (savage)
 					{
-						Console.WriteLine("Savage Beg");
+						//Console.WriteLine("Savage Beg");
 						if (m_From.CheckTargetSkill(SkillName.Begging, m_Target, 80, 100)) //Need 80+ Skill to Attempt to beg from Savages
 						{
 							int begchance = Utility.Random(100);
@@ -284,12 +284,12 @@ namespace Server.SkillHandlers
 					}
 					else if (m_From.CheckTargetSkill(SkillName.Begging, m_Target, 0, 100))
 					{
-						Console.WriteLine("Human Beg");
+						//Console.WriteLine("Human Beg");
 						BegChance(m_From, m_Target, false, false); //Not a Savage or Orc? Human than!
 					}
 					else
 					{
-						Console.WriteLine("Fail Beg");
+						//Console.WriteLine("Fail Beg");
 						m_Target.SendLocalizedMessage(500404); // They seem unwilling to give you any money.
 					}
 				}
@@ -298,7 +298,44 @@ namespace Server.SkillHandlers
 			public static void BegChance(Mobile m, object targeted, bool orcs, bool savage) //What is loot roll!
 			{
 				Mobile t = (Mobile)targeted;
+				//	double chance = 1.0; //Test
 				double chance = Utility.RandomDouble(); //Roll .00 -> 1.0
+
+				#region Begging Outfit
+				double bonus = 0;
+				double pbonus = 0;
+				Console.WriteLine("<0>Chance is {0}", chance);
+
+				for (int i = 0; i < m.Items.Count; i++)
+				{
+					Item item = m.Items[i];
+
+					if (item is IBeggingAttire)
+					{
+						if (item is ISetItem)
+						{
+							if (((ISetItem)item).SetEquipped)
+							{
+								pbonus = ((double)((IBeggingAttire)item).SetBonus / 100) / (double)((ISetItem)item).Pieces;
+								//Console.WriteLine("<{0}>Piece Bonus is {1}", i, pbonus);
+								bonus = bonus + pbonus;
+								//Console.WriteLine("<{0}>Bonus is {1}", i, bonus);
+							}
+						}
+					}
+					if (item is BeggerStaff)
+					{
+						//Staff is 5%
+						bonus = bonus + .05;
+					//	Console.WriteLine("<{0}>Staff Bonus is {1}", i, bonus);
+					}
+
+				}
+				
+				chance = chance + bonus;
+				#endregion
+
+				Console.WriteLine("<1>Chance is {0}", chance);
 
 				if (chance >= .95 && t is BaseVendor) //Greater than .95 and its a Vendor
 				{
@@ -324,57 +361,61 @@ namespace Server.SkillHandlers
 
 			public static void VendorBeg(Mobile m, object targeted, double chance)
 			{
+				//Console.WriteLine("Chance: {0}", chance);
 				Mobile t = (Mobile)targeted;
 				Item reward = null;
 				string rewardName = "";
 
+
 				if (chance >= .99 && m.Skills.Begging.Base >= 100)//Vendor Only (1 hour cooldown)
 				{
-					int rand = Utility.Random(2); //1-3 chances for high end items
-					if (rand == 0)
+					int rand = Utility.Random(5); //1-3 chances for high end items
+					Console.WriteLine("Random 1 is {0}", rand);
+					if (rand == 1)
 					{
 						reward = new RockArtifact(); //Rock Artifact
 						rewardName = "A rock";
 					}
-					else if (rand == 1)
+					else if (rand == 2)
 					{
 						reward = new BeggerCoins(24); //Special Coins
 						rewardName = "24 Dull Silver Coins.";
 					}
-					else if (rand == 2) //Fur Boots
+					else if (rand == 3) //Fur Boots
 					{
 						reward = new FurBoots();
-
+						rewardName = "Fur Boots";
 					}
 				}
-				if (chance >= .95) //Vendor Only
+				Console.WriteLine("RewardName (1) {0}", reward);
+				if (chance >= .95 && m.Skills.Begging.Base >= 90 && reward == null) //Vendor Only
 				{
 					int rand = Utility.Random(7);
-
+					Console.WriteLine("Random 2 is {0}", rand);
 					if (rand == 0)
 					{
 						reward = new BegBedRoll();
-
+						rewardName = "Bedroll";
 					}
 					else if (rand == 1)
 					{
 						reward = new Cookies();
-
+						rewardName = "Cookies";
 					}
 					else if (rand == 2)
 					{
 						reward = new FishSteak();
-
+						rewardName = "Fish Steaks";
 					}
 					else if (rand == 3)
 					{
 						reward = new FishingPole();
-
+						rewardName = "Fishing Pole";
 					}
 					else if (rand == 4)
 					{
 						reward = new FlowerGarland();
-
+						rewardName = "Flower Garland";
 					}
 					else if (rand == 5)
 					{
@@ -384,16 +425,22 @@ namespace Server.SkillHandlers
 					else if (rand == 6)
 					{
 						reward = new Turnip();
-
+						rewardName = "Turnip";
 					}
 					else if (rand == 7)
 					{
 						reward = new CeramicMug();
-
+						rewardName = "Ceramic Mug";
 					}
 
 				}
-				Reward(m, t, reward, rewardName);
+				Console.WriteLine("RewardName (2) {0}", reward);
+				if (reward == null)
+				{
+					JunkBeg(m, t, chance);
+				}
+				else
+					Reward(m, t, reward, rewardName);
 			}
 
 			public static void SavageBeg(Mobile m, object targeted, double chance)
@@ -573,21 +620,11 @@ namespace Server.SkillHandlers
 						rewardName = "a shirt";
 					}
 				}
-				else if (chance >= .25)
+				Console.WriteLine("RewardName (3) {0}", reward);
+				if (chance >= .25 && reward == null)
 				{
-					int rand = Utility.Random(1);
-
-					if (rand == 0)
-					{
 						reward = new FrenchBread();
 						rewardName = "french bread";
-
-					}
-					else
-					{
-						reward = new BeggerCoins(1);
-						rewardName = "beggar coins";
-					}
 				}
 
 				if (reward == null && orcs == false) //Gold from Non Orcs and if you got nothing else from above.

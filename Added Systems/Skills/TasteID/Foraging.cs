@@ -379,6 +379,14 @@ namespace Server.Engines.Harvest
 			{
 				name = "a Worm";
 			}
+			else if (item is Carrot)
+			{
+				name = "a carrot";
+			}
+			else if (item is Onion)
+			{
+				name = "an onion";
+			}
 			else
 			{
 				name = item.ItemData.Name;

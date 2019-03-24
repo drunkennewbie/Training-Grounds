@@ -54,6 +54,7 @@ namespace Server.Mobiles
 		public override FoodType FavoriteFood { get { return FoodType.Meat; } }
 		public override PackInstinct PackInstinct { get { return PackInstinct.Feline; } }
 		public override bool CanStealth { get { return true; } }
+		public override bool CanRegenMana { get { return false; } }
 
 		public override double GetControlChance(Mobile m, bool useBaseSkill)
 		{
