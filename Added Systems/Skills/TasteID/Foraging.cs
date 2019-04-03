@@ -78,15 +78,15 @@ namespace Server.Engines.Harvest
 
 			res = new HarvestResource[]
 				{
-				new HarvestResource( 00.0, 00.0, 100.0, "You found a Bark Fragment",  typeof( BarkFragment ) ),
-				new HarvestResource( 00.0, 00.0, 100.0, "You found some Spider Silk", typeof( SpidersSilk )),
-				new HarvestResource( 00.0, 00.0, 100.0, "You found some Mandrake Root", typeof( MandrakeRoot)),
-				new HarvestResource( 00.0, 00.0, 100.0, "You found some Ginseng", typeof( Ginseng ) ),
-				new HarvestResource( 00.0, 00.0, 100.0, "You found some Garlic", typeof( Garlic )),
-				new HarvestResource( 00.0, 00.0, 100.0, "You found some Bloodmoss", typeof( Bloodmoss )),
-				new HarvestResource( 00.0, 00.0, 100.0, "You found some Black Pearl", typeof( BlackPearl )),
-				new HarvestResource( 00.0, 00.0, 100.0, "You found some Sulfuruous Ash", typeof( SulfurousAsh )),
-				new HarvestResource( 00.0, 00.0, 100.0, "You found some Nightshade", typeof( Nightshade )),
+				new HarvestResource( 00.0, 0.0, 100.0, "You found a Bark Fragment",  typeof( BarkFragment ) ),
+				new HarvestResource( 75.0, 0.0, 100.0, "You found some Spider Silk", typeof( SpidersSilk )),
+				new HarvestResource( 75.0, 0.0, 100.0, "You found some Mandrake Root", typeof( MandrakeRoot)),
+				new HarvestResource( 75.0, 0.0, 100.0, "You found some Ginseng", typeof( Ginseng ) ),
+				new HarvestResource( 75.0, 0.0, 100.0, "You found some Garlic", typeof( Garlic )),
+				new HarvestResource( 75.0, 0.0, 100.0, "You found some Bloodmoss", typeof( Bloodmoss )),
+				new HarvestResource( 75.0, 0.0, 100.0, "You found some Black Pearl", typeof( BlackPearl )),
+				new HarvestResource( 75.0, 0.0, 100.0, "You found some Sulfuruous Ash", typeof( SulfurousAsh )),
+				new HarvestResource( 75.0, 0.0, 100.0, "You found some Nightshade", typeof( Nightshade )),
 				};
 
 			veins = new HarvestVein[]
@@ -138,12 +138,11 @@ namespace Server.Engines.Harvest
 		private static MutateEntry[] m_MutateTable = new MutateEntry[]
 			{
 				//      Req Skill, Min skill, Max Skill, Grass, Dirt, Sand, Swamp, Snow, Item
-				new MutateEntry(  80.0,  80.0,  4080.0, true, true, false, false, false, typeof( FertileDirt ) ), //Fertile Dirt - Dirt
-			    new MutateEntry(  80.0,  80.0,  4080.0, true, true, false,  true, false, typeof( Worm )), //Worm - Dirt
-			    new MutateEntry(  50.0,  50.0,  200.0,  true, false, false, false, false, typeof( Carrot )), //Carrot - Grass
-			    new MutateEntry(  50.0,  50.0,  200.0,  true, false, false, false, false, typeof( Onion )), //Onion - Grass
-				new MutateEntry(  80.0,  80.0,  200.0, false, false, true, false, false, typeof( Sand ) ), //Sand - Sand
 				new MutateEntry(  80.0,  80.0,  4080.0, true, true, true, true, false, typeof( RustyKatana ), typeof( RustyHatchet ), typeof( RustyDagger )), //Rusty Weapons
+				new MutateEntry(  80.0,  80.0,  4080.0, true, true, false, false, false, typeof( FertileDirt ) ), //Fertile Dirt - Dirt
+			    new MutateEntry(  80.0,  125.0, -2375.0, true, true, false,  true, false, typeof( Worm )), //Worm - Dirt
+				new MutateEntry(  80.0,  125.0, -2375.0, false, false, true, false, false, typeof( Sand ) ), //Sand - Sand
+				new MutateEntry(   0.0, 200.0, -200.0,  true, false, false, false, false, typeof( Carrot )), //Carrot - Grass
 				new MutateEntry(  80.0,  80.0,  200.0, false, false, false, false, true, typeof( Snowball ) ), //Snowball - Snow
 				new MutateEntry(   0.0, 200.0,  -200.0, true, true, true, true, true, new Type[1]{ null } ) //Nothing - All
 			};
@@ -382,10 +381,6 @@ namespace Server.Engines.Harvest
 			else if (item is Carrot)
 			{
 				name = "a carrot";
-			}
-			else if (item is Onion)
-			{
-				name = "an onion";
 			}
 			else
 			{

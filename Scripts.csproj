@@ -81,6 +81,7 @@
     <Compile Include="Added Systems\Crafting Updates\Cooking\Definitions\DefBeverage.cs" />
     <Compile Include="Added Systems\Crafting Updates\Cooking\Items\SteamPowerBeverage.cs" />
     <Compile Include="Added Systems\Creatures\BardableHorse.cs" />
+    <Compile Include="Added Systems\Creatures\BeggerGuildMaster.cs" />
     <Compile Include="Added Systems\Creatures\CatHerder.cs" />
     <Compile Include="Added Systems\Creatures\Drow\AI_Stealth.cs" />
     <Compile Include="Added Systems\Creatures\Drow\Drow.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Added Systems\Quests\Chicken Biologist\Items\ReptileCata.cs" />
     <Compile Include="Added Systems\Quests\TestQuester\TestQuests.cs" />
     <Compile Include="Added Systems\SetBonus\SetItems.cs" />
+    <Compile Include="Added Systems\Skills\Begging\Items\beggingbook.cs" />
     <Compile Include="Added Systems\Skills\Begging\Items\BeggingOutfit.cs" />
     <Compile Include="Added Systems\Skills\Begging\Items\BeggingStaff.cs" />
     <Compile Include="Added Systems\Skills\Begging\Items\TrashPiles\MagnetiteOre.cs" />

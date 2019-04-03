@@ -9,14 +9,15 @@ using Server.Spells.Seventh;
 namespace Server.Items
 {
 	//Based Off Gnarled Staff
-	public class BeggerStaff : GnarledStaff
+	public class BeggerStaff : BlackStaff
 	{
 	
 		[Constructable]
 		public BeggerStaff()
 		{
+			Name = "Staff of a Begger";
 			this.Weight = 12.0;
-			SkillBonuses.SetValues(0, SkillName.Begging, 10.0);
+			Hue = 1008;
 						
 		}
 

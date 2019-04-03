@@ -167,6 +167,7 @@ namespace Server.SkillHandlers
 						{
 							case 0: from.PublicOverheadMessage(MessageType.Regular, 0x3B2, false, "Please could you spare some change"); break;
 							case 1: from.PublicOverheadMessage(MessageType.Regular, 0x3B2, false, "Anything you give will help. Please"); break;
+							case 2: from.PublicOverheadMessage(MessageType.Regular, 0x3B2, false, "Do you really need that item?"); break;
 						}
 						new InternalTimer(from, targ).Start(); //Commence Timer
 
@@ -298,8 +299,8 @@ namespace Server.SkillHandlers
 			public static void BegChance(Mobile m, object targeted, bool orcs, bool savage) //What is loot roll!
 			{
 				Mobile t = (Mobile)targeted;
-				//	double chance = 1.0; //Test
-				double chance = Utility.RandomDouble(); //Roll .00 -> 1.0
+				double chance = 1.0; //Test
+				//double chance = Utility.RandomDouble(); //Roll .00 -> 1.0
 
 				#region Begging Outfit
 				double bonus = 0;
@@ -337,25 +338,29 @@ namespace Server.SkillHandlers
 
 				Console.WriteLine("<1>Chance is {0}", chance);
 
-				if (chance >= .95 && t is BaseVendor) //Greater than .95 and its a Vendor
+				if (m is PlayerMobile)
 				{
-					VendorBeg(m, t, chance);
-					//m.Say("Vendor File {0}", chance);
-				}
-				else if (chance >= .95 && orcs == true) //Greater than .95 and a Orc
-				{
-					OrcBeg(m, t, chance);
-					//m.Say("Orc File {0}", chance);
-				}
-				else if (chance >= .95 && savage == true) //Greater than .95 and Savage
-				{
-					SavageBeg(m, t, chance);
-					//m.Say("Savage File {0}", chance);
-				}
-				else //Less than .75 or not a vendor-orc-savage? Have some crap
-				{
-					JunkBeg(m, t, chance);
-					//m.Say("Junk File {0}", chance);
+					PlayerMobile pm = (PlayerMobile)m;
+					if (chance >= .95 && t is BaseVendor ) //Greater than .95 and its a Vendor
+					{
+						VendorBeg(m, t, chance);
+						//m.Say("Vendor File {0}", chance);
+					}
+					else if (chance >= .95 && orcs == true && pm.NpcGuild == NpcGuild.BeggerGuild) //Greater than .95 and a Orc
+					{
+						OrcBeg(m, t, chance);
+						//m.Say("Orc File {0}", chance);
+					}
+					else if (chance >= .95 && savage == true && pm.NpcGuild == NpcGuild.BeggerGuild) //Greater than .95 and Savage
+					{
+						SavageBeg(m, t, chance);
+						//m.Say("Savage File {0}", chance);
+					}
+					else //Less than .75 or not a vendor-orc-savage? Have some crap
+					{
+						JunkBeg(m, t, chance);
+						//m.Say("Junk File {0}", chance);
+					}
 				}
 			}
 
@@ -367,11 +372,10 @@ namespace Server.SkillHandlers
 				string rewardName = "";
 
 
-				if (chance >= .99 && m.Skills.Begging.Base >= 100)//Vendor Only (1 hour cooldown)
+				if (chance > .99 && m.Skills.Begging.Base >= 100)//Vendor Only (1 hour cooldown)
 				{
-					int rand = Utility.Random(5); //1-3 chances for high end items
-					Console.WriteLine("Random 1 is {0}", rand);
-					if (rand == 1)
+					int rand = Utility.Random(9); //0-9 (10 Total) (40% chance for a item)
+					if (rand == 0)
 					{
 						reward = new RockArtifact(); //Rock Artifact
 						rewardName = "A rock";
@@ -379,18 +383,23 @@ namespace Server.SkillHandlers
 					else if (rand == 2)
 					{
 						reward = new BeggerCoins(24); //Special Coins
-						rewardName = "24 Dull Silver Coins.";
+						rewardName = "24 dull slver coins.";
 					}
-					else if (rand == 3) //Fur Boots
+					else if (rand == 4) //Fur Boots
 					{
 						reward = new FurBoots();
-						rewardName = "Fur Boots";
+						rewardName = "a pair of Fur Boots";
+					}
+					else if (rand == 6)
+					{
+						reward = new FlowerGarland();
+						rewardName = "a flower Garland";
 					}
 				}
 				Console.WriteLine("RewardName (1) {0}", reward);
-				if (chance >= .95 && m.Skills.Begging.Base >= 90 && reward == null) //Vendor Only
+				if (chance > .95 && m.Skills.Begging.Base >= 90 && reward == null)
 				{
-					int rand = Utility.Random(7);
+					int rand = Utility.Random(9);
 					Console.WriteLine("Random 2 is {0}", rand);
 					if (rand == 0)
 					{
@@ -402,32 +411,27 @@ namespace Server.SkillHandlers
 						reward = new Cookies();
 						rewardName = "Cookies";
 					}
-					else if (rand == 2)
+					else if (rand == 3)
 					{
 						reward = new FishSteak();
 						rewardName = "Fish Steaks";
 					}
-					else if (rand == 3)
+					else if (rand == 4)
 					{
 						reward = new FishingPole();
 						rewardName = "Fishing Pole";
 					}
-					else if (rand == 4)
-					{
-						reward = new FlowerGarland();
-						rewardName = "Flower Garland";
-					}
-					else if (rand == 5)
+					else if (rand == 6)
 					{
 						reward = new BeggerCoins(12);
 						rewardName = "12 Dull Silver Coins.";
 					}
-					else if (rand == 6)
+					else if (rand == 7)
 					{
 						reward = new Turnip();
 						rewardName = "Turnip";
 					}
-					else if (rand == 7)
+					else if (rand == 9)
 					{
 						reward = new CeramicMug();
 						rewardName = "Ceramic Mug";
@@ -450,63 +454,76 @@ namespace Server.SkillHandlers
 				string rewardName = "";
 
 
-				if (chance >= .99 && m.Skills.Begging.Base >= 100)
+				if (chance > .99 && m.Skills.Begging.Base >= 100)
 				{
-					int rand = Utility.Random(2);
+					int rand = Utility.Random(9);
 					if (rand == 0)
 					{
 						reward = new TribalBedroll();
-					}
-					else if (rand == 1)
-					{
-						reward = new BeggerCoins(50); //Special Coins!
-						rewardName = "50 Dull Silver Coins.";
+						rewardName = "a Tribal Bedroll";
 					}
 					else if (rand == 2)
 					{
+						reward = new BeggerCoins(50); //Special Coins!
+						rewardName = "50 dull silver coins.";
+					}
+					else if (rand == 4)
+					{
 						reward = new FurCape(); //fur Cape!
+						rewardName = "a Fur Cape";
+
+					}
+					else if (rand == 6)
+					{
+						reward = new HornedTribalMask();
+						rewardName = "a horned tribal mask";
 
 					}
 				}
-				if (chance >= .95)
+				if (chance > .95 && m.Skills.Begging.Base >= 90 && reward == null)
 				{
-					int rand = Utility.Random(7);
+					int rand = Utility.Random(9);
 
 					if (rand == 0)
 					{
 						reward = new LambLeg();
+						rewardName = "a leg of lamb";
 					}
 					else if (rand == 1)
 					{
-						reward = new HornedTribalMask();
-
-					}
-					else if (rand == 2)
-					{
 						reward = new OrcishKinMask();
-
+						rewardName = "an orc mask";
 					}
 					else if (rand == 3)
 					{
-						reward = new TribalBerry();
-
+						reward = new TribalBerry(2);
+						rewardName = "tribal berries";
 					}
-					else if (rand == 5)
+					else if (rand == 4)
 					{
 						reward = new TribalMask();
+						rewardName = "a tribal mask";
 					}
-
-					else if (rand == 5)
+					else if (rand == 6)
 					{
 						reward = new BeggerCoins(25);
-						rewardName = "25 Dull Silver Coins.";
+						rewardName = "25 dull silver coins.";
+					}
+					else if (rand == 7)
+					{
+						reward = new Beads();
+						rewardName = "beads";
 					}
 
-
 				}
-				Reward(m, t, reward, rewardName);
+				if (reward == null)
+				{
+					JunkBeg(m, t, chance);
+				}
+				else
+					Reward(m, t, reward, rewardName);
 			}
-
+			
 			public static void OrcBeg(Mobile m, object targeted, double chance)
 			{
 				Mobile t = (Mobile)targeted;
@@ -514,7 +531,7 @@ namespace Server.SkillHandlers
 				string rewardName = "";
 
 
-				if (chance >= .99 && m.Skills.Begging.Base >= 100)
+				if (chance > .99 && m.Skills.Begging.Base >= 100)
 				{
 					int rand = Utility.Random(2);
 					if (rand == 0)

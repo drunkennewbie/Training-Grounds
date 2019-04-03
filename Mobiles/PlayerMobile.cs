@@ -64,7 +64,11 @@ namespace Server.Mobiles
 		TailorsGuild,
 		FishermensGuild,
 		BardsGuild,
-		BlacksmithsGuild
+		BlacksmithsGuild,
+		#region Begger Addon
+		BeggerGuild
+		#endregion
+
 	}
 
 	public enum SolenFriendship
