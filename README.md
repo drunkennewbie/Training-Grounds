@@ -72,4 +72,9 @@ General Testing Grounds of Ideas.
 ### March 14, 2019
 - Corpse Bell
 	- Summons all of the players corpses within 30 squares of them
-- Started to work on Repair Bench 
+- Started to work on Repair Bench
+
+### July 26, 2019
+- Conducting a general resync to put everything back to how it was. Life got busy so ensuring all data is the same. A few minor typo corrections and general code tracking. 
+- Continueing to work on Distillery
+- Created Leather Quiver that carries 1k Arrows and weight reduction at 50%
