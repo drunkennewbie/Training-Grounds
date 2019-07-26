@@ -110,7 +110,7 @@ namespace Server.Mobiles
 				return false;
 			}
 
-			PrivateOverheadMessage(MessageType.Regular, 1162, false, "Alright, lets see here feed this to the chicken and... It produced some eggs! here have one.", pm.NetState);
+			PrivateOverheadMessage(MessageType.Regular, 1162, false, "Alright, lets see here feed this to the chicken and... It produced some eggs! this one looks normal compared to the others here you can have it.", pm.NetState);
 			dropped.Consume();
 
 			

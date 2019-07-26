@@ -91,6 +91,7 @@
     <Compile Include="Added Systems\Crafting Updates\Cooking\Distillery\Item\WheatWort.cs" />
     <Compile Include="Added Systems\Crafting Updates\Cooking\Distillery\Item\Yeast.cs" />
     <Compile Include="Added Systems\Creatures\BardableHorse.cs" />
+    <Compile Include="Added Systems\Items\LeatherQuiver.cs" />
     <Compile Include="Added Systems\QuestSystem\Objectives\GiveObtainObjective.cs" />
     <Compile Include="Added Systems\Quests\Storyline\LibrarianDef.cs" />
     <Compile Include="Added Systems\Skills\Begging\BeggerGuildMaster.cs" />

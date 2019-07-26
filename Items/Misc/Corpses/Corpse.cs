@@ -863,7 +863,7 @@ namespace Server.Items
 					break;
 				}
 			}
-			#region Undertaker Stone
+			#region CorpseBell
 			if (m_Owner is PlayerMobile)
 			{
 				if (PlayerCorpses == null)
@@ -1352,7 +1352,7 @@ namespace Server.Items
 		}
 		#endregion
 
-		#region Undertaker Stone
+		#region CorpseBell
 		public override void Delete()
 		{
 			base.Delete();

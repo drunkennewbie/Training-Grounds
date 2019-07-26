@@ -58,13 +58,13 @@ using Server.Items;
 				return;
 			}
 
-			if (FungusCount >= 10 && ReptileScalesCount >= 2)
+			if (FungusCount >= 10 && ReptileScalesCount >= 6)
 			{
 				LabelTo(from, "a bottle of unknown liquid");
 				return;
 			}
 
-			LabelTo(from, "a mortar and pestle with {0}/10 Zoogi Fungus and {1}/2 Reptile Scales", FungusCount, ReptileScalesCount);
+			LabelTo(from, "a mortar and pestle with {0}/10 Zoogi Fungus and {1}/6 Reptile Scales", FungusCount, ReptileScalesCount);
 			
 		}
 
