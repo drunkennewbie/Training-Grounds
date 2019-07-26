@@ -7,6 +7,7 @@ namespace Server.Engines.Quests
 	public enum QuestChain
 	{
 		None = 0,
+		Sprinklers = 1,
 	}
 
 	public class BaseChain

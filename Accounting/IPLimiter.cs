@@ -10,7 +10,7 @@ namespace Server.Misc
 {
 	public class IPLimiter
 	{
-		public static bool Enabled = true;
+		public static bool Enabled = false;
 		public static bool SocketBlock = true; // true to block at connection, false to block at login request
 
 		public static int MaxAddresses = 10;

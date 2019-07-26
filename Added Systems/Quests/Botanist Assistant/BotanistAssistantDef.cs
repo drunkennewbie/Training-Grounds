@@ -7,7 +7,9 @@ namespace Server.Engines.Quests
 	#region Quests
 	public class Bot1 : BaseQuest
 	{
-		//public override Type NextQuest { get { return typeof(Bot2); } }
+		public override QuestChain ChainID { get { return QuestChain.Sprinklers; } }
+		public override Type NextQuest { get { return typeof(Bot2); } }		
+		public override bool DoneOnce { get { return true; } }
 
 		public Bot1() : base()
 		{
@@ -40,35 +42,39 @@ namespace Server.Engines.Quests
 	
 	}
 
-	/*
-	public class Bot2 : Quests
+	
+	public class Bot2 : BaseQuest
 	{
 		public Bot2()
 		{
-			
-			Activated = true;
-			OneTimeOnly = true;
-			Title = "Meeting Giovanni";
-			Description = "Ah, the Sprinkler system? I have heard of one of those too. I saw one many a year ago. I think it was in Skara Brae" +
-						  "<BR>I would love to have the schmatics, the problem is the creator died with the only schematic in existant." +
-						  "<BR>If you could draw and write down all the information on the sprinkler with the schematic kit maybe I can recreate it.";
-			RefusalMessage = "Alright, if you change your mind, you know where to find me.";
-			InProgressMessage = "Any luck with drawing the schematics?";
-			CompletionMessage = "Alright lets see, what do we have here";
-
-			Objectives.Add(new InvestigateObject(typeof(SchematicKit), 1, "Peaches",typeof(Apple), 1, "Apple"));
-
-			Rewards.Add(new DummyReward("Onwards to create a Sprinkler!"));
+			this.AddObjective(new DeliverObjective(typeof(GionvanniRequest), "Giovanni Help Request", 1, typeof(Giovanni), "Giovanni"));
+			this.AddReward(new BaseReward("Another Step closer to creation of Sprinkler System"));
 		}
 
-		public override void Generate()
+		public override object Title { get { return "Meeting Giovanni"; } }
+		public override object Description
 		{
-			base.Generate();
-
-			PutSpawner(new Spawner(1, 5, 10, 0, 0, "Giovanni"), new Point3D(3445, 2635, 28), Map.Trammel);
+			get
+			{
+				return "Ah, the Sprinkler system? I have heard of one of those too. I saw one many a year ago. I think it was in Skara Brae" +
+					   "<BR>I would love to have the schmatics, the problem is the creator died with the only schematic in existant." +
+					   "<BR>If you could draw and write down all the information on the sprinkler with the schematic kit maybe I can recreate it.";
+			}
 		}
+
+		public override object Refuse { get { return 1075508; } }
+		public override object Uncomplete { get { return "Any luck with drawing the schematics?"; } }
+		public override object Complete { get { return "What is this we have here?"; } }
+
+		public override void GiveRewards()
+		{
+			base.GiveRewards();
+
+			this.Owner.SendMessage("Another Step Closer to a sprinkler System... We hope");
+		}
+
 	}
-	*/
+	
 	#endregion
 
 	#region Mobiles
@@ -132,17 +138,25 @@ namespace Server.Engines.Quests
 		}
 	}
 
-	public class Giovanni : BaseCreature
+	public class Giovanni : NewQuester
 	{
 		public override bool IsInvulnerable { get { return true; } }
 		public override bool CanTeach { get { return false; } }
-						
-		[Constructable]
-		public Giovanni()
-			: base(AIType.AI_Vendor, FightMode.None, 2, 1, 0.5, 2)
+
+		public override Type[] Quests
 		{
-			Name = "Giovanni";
-			Title = "the Master Tinker";
+			get
+			{
+				return new Type[]
+				{
+					typeof(Bot2)
+				};
+			}
+		}
+
+		[Constructable]
+		public Giovanni() : base("Giovanni"," The Master Tinker")
+		{
 			Race = Race.Human;
 			BodyValue = 0x190;
 			Female = false;

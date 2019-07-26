@@ -26,7 +26,20 @@ namespace Server.Items
 		{
 		}
 
-		
+		public override bool CanEquip(Mobile from)
+		{
+			if (!base.CanEquip(from))
+				return false;
+			if (from.Skills[SkillName.Begging].Base >= 75)
+			{
+				from.SendMessage("You feel strangly empowered by the staff");
+				return true;
+			}
+			from.SendMessage("The staff magical enchantment rejects you, you lack the skill to wield it.");
+			return false;
+		}
+
+
 		public override void Serialize(GenericWriter writer)
 		{
 			base.Serialize(writer);
